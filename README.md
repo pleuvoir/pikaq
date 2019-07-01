@@ -1,6 +1,6 @@
 ## pikaq
 
-<img src="docs/images/timg.jpg"  >
+<img src="docs/images/timg.jpg"  width="400" height="350">
 
 [![HitCount](http://hits.dwyl.io/pleuvoir/pikaq.svg)](http://hits.dwyl.io/pleuvoir/pikaq) 
 [![GitHub issues](https://img.shields.io/github/issues/pleuvoir/pikaq.svg)](https://github.com/pleuvoir/pikaq/issues)
@@ -10,7 +10,7 @@
 
 ## 介绍
 
-本项目是基于Netty的通信层框架实现。
+本项目是对网络通信框架Netty的封装，方便使用。
 
 ## 特性
 
