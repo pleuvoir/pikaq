@@ -7,7 +7,7 @@ import io.github.pikaq.serialize.SerializationException;
 import io.github.pikaq.serialize.SerializerAlgorithm;
 
 /**
- * FastJSON序列化范序列化实现
+ * FastJSON序列化实现
  * @author pleuvoir
  *
  */

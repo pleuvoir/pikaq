@@ -1,4 +1,4 @@
-package io.github.pikaq.serialze;
+package io.github.pikaq.serialize;
 
 import lombok.Getter;
 import lombok.Setter;

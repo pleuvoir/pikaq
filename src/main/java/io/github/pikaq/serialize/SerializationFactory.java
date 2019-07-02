@@ -3,6 +3,8 @@ package io.github.pikaq.serialize;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import io.github.pikaq.PikaqConst;
+
 /**
  * 序列化工厂，默认使用SPI中第一个实现
  * @author pleuvoir
@@ -23,7 +25,15 @@ public class SerializationFactory {
 			serializerTable.put(SerializerAlgorithm.toAlgorithm(serializer.getSerializerAlgorithm().getCode()),
 					serializer);
 		}
-		DEFAULT = serializerTable.firstEntry().getValue();
+		
+		// 优先取系统变量中设置的序列化算法，然后是SPI实现的第一个
+		String algorithProperty = System.getProperty(PikaqConst.SERIALIZER);
+		SerializerAlgorithm algorithm = SerializerAlgorithm.toAlgorithm(algorithProperty);
+		if (algorithm == null) {
+			DEFAULT = serializerTable.firstEntry().getValue();
+		} else {
+			DEFAULT = serializerTable.get(algorithm);
+		}
 	}
 
 	/**
@@ -34,9 +44,9 @@ public class SerializationFactory {
 	}
 
 	/**
-	 * 获取对应的序列化实现
+	 * 获取对应的序列化实现，获取失败抛出异常
 	 */
-	public static ISerializer get(byte algorithmCode) {
+	public static ISerializer get(int algorithmCode) {
 		SerializerAlgorithm algorithm = SerializerAlgorithm.toAlgorithm(algorithmCode);
 		if (algorithm == null) {
 			throw new SerializationException("获取序列化实现失败，algorithmCode=" + algorithmCode);

@@ -17,6 +17,7 @@
 		<logback.version>1.2.3</logback.version>
 		<netty.version>4.1.6.Final</netty.version>
 		<fastjson.version>1.2.31</fastjson.version>
+		<lang3.version>3.7</lang3.version>
 		<lombok.version>1.16.10</lombok.version>
 	</properties>
 
@@ -40,6 +41,11 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${lang3.version}</version>
 		</dependency>
 		<!-- logger -->
 		<dependency>

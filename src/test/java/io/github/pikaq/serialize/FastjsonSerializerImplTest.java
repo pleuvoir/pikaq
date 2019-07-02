@@ -1,4 +1,4 @@
-package io.github.pikaq.serialze;
+package io.github.pikaq.serialize;
 
 import org.junit.Assert;
 import org.junit.Test;
