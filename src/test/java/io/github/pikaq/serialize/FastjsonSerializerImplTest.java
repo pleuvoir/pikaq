@@ -3,7 +3,6 @@ package io.github.pikaq.serialize;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.github.pikaq.serialize.SerializerAlgorithm;
 import io.github.pikaq.serialize.fastjson.FastJSONSerializerImpl;
 
 public class FastjsonSerializerImplTest {

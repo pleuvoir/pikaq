@@ -5,7 +5,7 @@ package io.github.pikaq.serialize;
  * @author pleuvoir
  *
  */
-public interface ISerializer {
+public interface Serializer {
 
 	/**
 	 * 序列化算法，{@link SerializerAlgorithm}

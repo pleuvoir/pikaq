@@ -12,7 +12,7 @@ import lombok.Getter;
 public enum SerializerAlgorithm {
 
 	JSON(0),
-	HESSIAN2(1),
+	HESSIAN(1),
 	;
 
 	@Getter

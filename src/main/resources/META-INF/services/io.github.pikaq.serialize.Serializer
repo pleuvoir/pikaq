@@ -1,0 +1,2 @@
+io.github.pikaq.serialize.fastjson.FastJSONSerializerImpl
+io.github.pikaq.serialize.hessian.HessianSerializerImpl

@@ -10,11 +10,11 @@ public class SerializationFactoryTest {
 	@Test
 	public void testDafault() {
 
-		ISerializer defaultImpl = SerializationFactory.defaultImpl();
+		Serializer defaultImpl = SerializationFactory.defaultImpl();
 
 		Assert.assertEquals(defaultImpl.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 
-		ISerializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
+		Serializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
 		Assert.assertEquals(iSerializer.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 
 		System.setProperty(PikaqConst.SERIALIZER, "2");
@@ -29,11 +29,11 @@ public class SerializationFactoryTest {
 
 		System.setProperty(PikaqConst.SERIALIZER, "2");
 
-		ISerializer defaultImpl = SerializationFactory.defaultImpl();
+		Serializer defaultImpl = SerializationFactory.defaultImpl();
 
 		Assert.assertEquals(defaultImpl.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 
-		ISerializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
+		Serializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
 		Assert.assertEquals(iSerializer.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 	}
 	
@@ -42,11 +42,27 @@ public class SerializationFactoryTest {
 
 		System.setProperty(PikaqConst.SERIALIZER, "0");
 
-		ISerializer defaultImpl = SerializationFactory.defaultImpl();
+		Serializer defaultImpl = SerializationFactory.defaultImpl();
 
 		Assert.assertEquals(defaultImpl.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 
-		ISerializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
+		Serializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
 		Assert.assertEquals(iSerializer.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
+		
+		
+	}
+	
+	
+	@Test
+	public void testHessian() {
+
+		System.setProperty(PikaqConst.SERIALIZER, String.valueOf(SerializerAlgorithm.HESSIAN.getCode()));
+
+		Serializer defaultImpl = SerializationFactory.defaultImpl();
+
+		Assert.assertEquals(defaultImpl.getSerializerAlgorithm(), SerializerAlgorithm.HESSIAN);
+
+		
+		
 	}
 }

@@ -2,8 +2,8 @@ package io.github.pikaq.serialize.fastjson;
 
 import com.alibaba.fastjson.JSON;
 
-import io.github.pikaq.serialize.ISerializer;
 import io.github.pikaq.serialize.SerializationException;
+import io.github.pikaq.serialize.Serializer;
 import io.github.pikaq.serialize.SerializerAlgorithm;
 
 /**
@@ -11,7 +11,7 @@ import io.github.pikaq.serialize.SerializerAlgorithm;
  * @author pleuvoir
  *
  */
-public class FastJSONSerializerImpl implements ISerializer {
+public class FastJSONSerializerImpl implements Serializer {
 
 	@Override
 	public SerializerAlgorithm getSerializerAlgorithm() {

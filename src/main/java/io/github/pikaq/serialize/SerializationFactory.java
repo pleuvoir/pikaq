@@ -15,13 +15,13 @@ public class SerializationFactory {
 	private SerializationFactory() {
 	}
 
-	private static final ISerializer DEFAULT;
+	private static final Serializer DEFAULT;
 
-	private static ConcurrentSkipListMap<SerializerAlgorithm, ISerializer> serializerTable = new ConcurrentSkipListMap<>();
+	private static ConcurrentSkipListMap<SerializerAlgorithm, Serializer> serializerTable = new ConcurrentSkipListMap<>();
 
 	static {
-		ServiceLoader<ISerializer> factories = ServiceLoader.load(ISerializer.class);
-		for (ISerializer serializer : factories) {
+		ServiceLoader<Serializer> factories = ServiceLoader.load(Serializer.class);
+		for (Serializer serializer : factories) {
 			serializerTable.put(SerializerAlgorithm.toAlgorithm(serializer.getSerializerAlgorithm().getCode()),
 					serializer);
 		}
@@ -39,14 +39,14 @@ public class SerializationFactory {
 	/**
 	 * 获取对应的序列化实现
 	 */
-	public static ISerializer get(SerializerAlgorithm algorithm) {
+	public static Serializer get(SerializerAlgorithm algorithm) {
 		return serializerTable.get(algorithm);
 	}
 
 	/**
 	 * 获取对应的序列化实现，获取失败抛出异常
 	 */
-	public static ISerializer get(int algorithmCode) {
+	public static Serializer get(int algorithmCode) {
 		SerializerAlgorithm algorithm = SerializerAlgorithm.toAlgorithm(algorithmCode);
 		if (algorithm == null) {
 			throw new SerializationException("获取序列化实现失败，algorithmCode=" + algorithmCode);
@@ -57,7 +57,7 @@ public class SerializationFactory {
 	/**
 	 * 获取默认的序列化实现
 	 */
-	public static ISerializer defaultImpl() {
+	public static Serializer defaultImpl() {
 		return DEFAULT;
 	}
 }
