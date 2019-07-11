@@ -1,4 +1,4 @@
-package io.github.pikaq.serialize;
+package io.github.pikaq.serialization;
 
 import java.io.Serializable;
 

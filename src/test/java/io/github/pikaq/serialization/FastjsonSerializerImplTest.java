@@ -1,9 +1,10 @@
-package io.github.pikaq.serialize;
+package io.github.pikaq.serialization;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.github.pikaq.serialize.fastjson.FastJSONSerializerImpl;
+import io.github.pikaq.serialization.SerializerAlgorithm;
+import io.github.pikaq.serialization.fastjson.FastJSONSerializerImpl;
 
 public class FastjsonSerializerImplTest {
 

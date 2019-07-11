@@ -1,10 +1,10 @@
-package io.github.pikaq.serialize.fastjson;
+package io.github.pikaq.serialization.fastjson;
 
 import com.alibaba.fastjson.JSON;
 
-import io.github.pikaq.serialize.SerializationException;
-import io.github.pikaq.serialize.Serializer;
-import io.github.pikaq.serialize.SerializerAlgorithm;
+import io.github.pikaq.serialization.SerializationException;
+import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.serialization.SerializerAlgorithm;
 
 /**
  * FastJSON序列化实现

@@ -1,4 +1,4 @@
-package io.github.pikaq.serialize.hessian;
+package io.github.pikaq.serialization.hessian;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,9 +8,9 @@ import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import com.caucho.hessian.io.SerializerFactory;
 
-import io.github.pikaq.serialize.SerializationException;
-import io.github.pikaq.serialize.Serializer;
-import io.github.pikaq.serialize.SerializerAlgorithm;
+import io.github.pikaq.serialization.SerializationException;
+import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.serialization.SerializerAlgorithm;
 
 /**
  * Hessian序列化实现，待传输的类必须实现{@link #Serializable}接口

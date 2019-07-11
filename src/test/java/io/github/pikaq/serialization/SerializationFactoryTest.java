@@ -1,9 +1,12 @@
-package io.github.pikaq.serialize;
+package io.github.pikaq.serialization;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import io.github.pikaq.PikaqConst;
+import io.github.pikaq.serialization.SerializationFactory;
+import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.serialization.SerializerAlgorithm;
 
 public class SerializationFactoryTest {
 
@@ -18,7 +21,6 @@ public class SerializationFactoryTest {
 		Assert.assertEquals(iSerializer.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 
 		System.setProperty(PikaqConst.SERIALIZER, "2");
-
 		
 	}
 	
@@ -49,7 +51,6 @@ public class SerializationFactoryTest {
 		Serializer iSerializer = SerializationFactory.get(SerializerAlgorithm.JSON);
 		Assert.assertEquals(iSerializer.getSerializerAlgorithm(), SerializerAlgorithm.JSON);
 		
-		
 	}
 	
 	
@@ -62,7 +63,5 @@ public class SerializationFactoryTest {
 
 		Assert.assertEquals(defaultImpl.getSerializerAlgorithm(), SerializerAlgorithm.HESSIAN);
 
-		
-		
 	}
 }

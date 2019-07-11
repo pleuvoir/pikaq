@@ -1,9 +1,9 @@
-package io.github.pikaq.serialize;
+package io.github.pikaq.serialization;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.github.pikaq.serialize.hessian.HessianSerializerImpl;
+import io.github.pikaq.serialization.hessian.HessianSerializerImpl;
 
 public class HessianSerializerImplTest {
 

@@ -1,10 +1,13 @@
-package io.github.pikaq.serialize;
+package io.github.pikaq.serialization;
+
+import io.github.pikaq.extension.SPI;
 
 /**
  * 序列化接口。提供了对象序列化及反序列化功能
  * @author pleuvoir
  *
  */
+@SPI("io.github.pikaq.serialization.fastjson.FastJSONSerializerImpl")
 public interface Serializer {
 
 	/**
