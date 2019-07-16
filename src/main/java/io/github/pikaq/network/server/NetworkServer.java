@@ -7,4 +7,8 @@ public interface NetworkServer extends Networkable {
 	void start(ServerConfig serverConfig);
 
 	void shutdown(NetworkServerContext networkContext);
+
+	void registerShutdownHooks(Thread... hooks);
+
+	String getServerName();
 }
