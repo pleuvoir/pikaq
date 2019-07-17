@@ -3,6 +3,7 @@ package io.github.pikaq.network;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.github.pikaq.network.server.NetworkServerContextHolder;
 import io.github.pikaq.network.server.ServerConfig;
 
 public class NetWorkServerTest {
@@ -31,6 +32,9 @@ public class NetWorkServerTest {
 
 		ServerConfig serverConfig = new ServerConfig();
 		serverConfig.setSoBacklog(2048);
+		serverConfig.setServerOpenPort(1991);
 		netWorkServer.start(serverConfig);
+		
+	//	netWorkServer.shutdown();
 	}
 }

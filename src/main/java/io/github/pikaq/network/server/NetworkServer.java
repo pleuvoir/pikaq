@@ -5,8 +5,8 @@ import io.github.pikaq.network.Networkable;
 public interface NetworkServer extends Networkable {
 
 	void start(ServerConfig serverConfig);
-
-	void shutdown(NetworkServerContext networkContext);
+	
+	void shutdown();
 
 	void registerShutdownHooks(Thread... hooks);
 

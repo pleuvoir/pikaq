@@ -12,4 +12,13 @@ public class ServerConfig {
 	 */
 	private int soBacklog = 1024;
 
+	/**
+	 * 公共线程池线程数，默认为CPU数
+	 */
+	private int publicThreadPoolNums = Runtime.getRuntime().availableProcessors();
+	
+	/**
+	 * 远程服务开放端口
+	 */
+	private int serverOpenPort = -1;
 }

@@ -2,18 +2,14 @@ package io.github.pikaq.network;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Preconditions;
-
+import io.github.pikaq.network.netty.NettyServerContext;
 import io.github.pikaq.network.server.AbstractNetworkServer;
 import io.github.pikaq.network.server.NetworkServerContext;
 import io.github.pikaq.network.server.ServerConfig;
+import io.netty.channel.Channel;
 
 public class NetWorkServer extends AbstractNetworkServer {
 
-	@Override
-	public void shutdown(NetworkServerContext networkContext) {
-
-	}
 
 	@Override
 	public HostAndPort getHostAndPort() {
@@ -21,24 +17,27 @@ public class NetWorkServer extends AbstractNetworkServer {
 	}
 
 	@Override
-	protected void validate(ServerConfig serverConfig) throws IllegalArgumentException {
-		int soBacklog = serverConfig.getSoBacklog();
-		Preconditions.checkArgument(soBacklog > 0, "Socket连接缓冲队列大小配置错误，必须大于0");
-	}
+	protected void doStart(ServerConfig serverConfig, NettyServerContext serverInfo) {
 
-	@Override
-	protected void doStart(ServerConfig serverConfig) {
-		try {
-			TimeUnit.SECONDS.sleep(3);
-			throw new RuntimeException("启动运行时异常");
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Channel channel = serverInfo.getChannel();
+		System.out.println("channel.isActive=" + channel.isActive());
+		System.out.println("channel.isOpen=" + channel.isOpen());
+//		try {
+//			TimeUnit.SECONDS.sleep(1);
+//			throw new RuntimeException("启动运行时异常");
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
 	public String getServerName() {
 		return "测试服务端";
+	}
+
+	@Override
+	protected void doClose() {
+		System.out.println("close.....");
 	}
 
 }
