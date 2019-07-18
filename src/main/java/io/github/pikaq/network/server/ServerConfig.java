@@ -20,5 +20,5 @@ public class ServerConfig {
 	/**
 	 * 远程服务开放端口
 	 */
-	private int serverOpenPort = -1;
+	private int listeningPort = 0;
 }

@@ -1,8 +1,8 @@
-package io.github.pikaq.network.netty;
+package io.github.pikaq.network;
 
+import io.github.pikaq.network.client.ClientConfig;
 import io.github.pikaq.network.server.ServerConfig;
 import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(builderMethodName = "create")
-public class NettyServerContext {
+public class RemotingContext {
 
 	private Channel channel;
-	private EventLoopGroup bossGroup;
-	private EventLoopGroup workGroup;
 	private ServerConfig serverConfig;
+	private ClientConfig clientConfig;
 
 }

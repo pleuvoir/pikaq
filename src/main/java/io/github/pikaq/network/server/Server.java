@@ -2,7 +2,7 @@ package io.github.pikaq.network.server;
 
 import io.github.pikaq.network.Networkable;
 
-public interface NetworkServer extends Networkable {
+public interface Server extends Networkable {
 
 	void start(ServerConfig serverConfig);
 	
