@@ -1,4 +1,4 @@
-package io.github.pikaq.network.server;
+package io.github.pikaq.remoting.server;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

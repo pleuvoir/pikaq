@@ -1,4 +1,4 @@
-package io.github.pikaq.network;
+package io.github.pikaq.remoting;
 
 public enum ServerState {
 

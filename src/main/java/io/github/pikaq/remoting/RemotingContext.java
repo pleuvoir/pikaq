@@ -1,7 +1,7 @@
-package io.github.pikaq.network;
+package io.github.pikaq.remoting;
 
-import io.github.pikaq.network.client.ClientConfig;
-import io.github.pikaq.network.server.ServerConfig;
+import io.github.pikaq.remoting.client.ClientConfig;
+import io.github.pikaq.remoting.server.ServerConfig;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

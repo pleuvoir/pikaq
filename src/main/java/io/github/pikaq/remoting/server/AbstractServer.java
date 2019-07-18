@@ -1,4 +1,4 @@
-package io.github.pikaq.network.server;
+package io.github.pikaq.remoting.server;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 
 import io.github.pikaq.common.util.PortUtils;
-import io.github.pikaq.network.NetworkLocationEnum;
-import io.github.pikaq.network.RemotingContext;
-import io.github.pikaq.network.RemotingContextHolder;
+import io.github.pikaq.remoting.RemoteLocationEnum;
+import io.github.pikaq.remoting.RemotingContext;
+import io.github.pikaq.remoting.RemotingContextHolder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -117,8 +117,8 @@ public abstract class AbstractServer implements Server {
 	}
 
 	@Override
-	public NetworkLocationEnum networkLocation() {
-		return NetworkLocationEnum.SERVER;
+	public RemoteLocationEnum remoteLocation() {
+		return RemoteLocationEnum.SERVER;
 	}
 
 	@Override

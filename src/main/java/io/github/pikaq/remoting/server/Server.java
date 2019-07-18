@@ -1,8 +1,8 @@
-package io.github.pikaq.network.server;
+package io.github.pikaq.remoting.server;
 
-import io.github.pikaq.network.Networkable;
+import io.github.pikaq.remoting.Remoteable;
 
-public interface Server extends Networkable {
+public interface Server extends Remoteable {
 
 	void start(ServerConfig serverConfig);
 	
