@@ -25,8 +25,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 public abstract class AbstractServer implements Server {
 
@@ -42,7 +40,6 @@ public abstract class AbstractServer implements Server {
 		try {
 			
 			validate(serverConfig);
-			
 			logger.info("[{}]开始启动", getServerName());
 
 			final ServerBootstrap bootstrap = new ServerBootstrap();
@@ -63,24 +60,22 @@ public abstract class AbstractServer implements Server {
 						}
 					});
 
-			// 即使是同步等待，依然可以回调
 			ChannelFuture f = bootstrap.bind().sync();
-			f.addListener(new GenericFutureListener<Future<? super Void>>() {
-				@Override
-				public void operationComplete(Future<? super Void> future) throws Exception {
+			
+			RemotingContext remotingContext = RemotingContext.create()
+					.channel(f.channel())
+					.serverConfig(serverConfig)
+					.build();
+			
+					RemotingContextHolder.set(remotingContext);
+					
+					doStart(remotingContext);
 					logger.info("[{}]服务已启动，监听端口：{}", getServerName(), serverConfig.getListeningPort());
-				}
-			});
-			RemotingContextHolder
-					.set(RemotingContext.create()
-							.channel(f.channel())
-							.serverConfig(serverConfig)
-							.build());
-
+					
 			// 最后同步阻塞线程不退出
 			f.channel().closeFuture().sync();
-		} catch (InterruptedException e) {
-			logger.error("[{}]服务启动失败， ", getServerName(), e);
+		} catch (Throwable e) {
+			logger.error("[{}]服务启动失败", getServerName(), e);
 		} finally {
 			logger.info("[{}]服务即将关闭，服务运行：cost：{}ms", getServerName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			shutdown();
@@ -89,7 +84,7 @@ public abstract class AbstractServer implements Server {
 
 	@Override
 	public void shutdown() {
-		logger.info("{} shutdown netty byebye..", getServerName());
+		logger.info("[{}] shutdown byebye..", getServerName());
 		if (bossGroup != null) {
 			bossGroup.shutdownGracefully();
 			bossGroup = null;
@@ -102,7 +97,7 @@ public abstract class AbstractServer implements Server {
 		doClose();
 	}
 
-	protected abstract void doStart(RemotingContext serverInfo);
+	protected abstract void doStart(RemotingContext remotingContext);
 
 	protected abstract void doClose();
 

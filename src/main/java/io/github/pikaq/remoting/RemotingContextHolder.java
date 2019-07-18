@@ -10,8 +10,8 @@ public class RemotingContextHolder {
 		return CONTEXT.get();
 	}
 
-	public static void set(RemotingContext serverContext) {
-		CONTEXT.set(serverContext);
+	public static void set(RemotingContext remotingContext) {
+		CONTEXT.set(remotingContext);
 	}
 
 	public static void clear() {

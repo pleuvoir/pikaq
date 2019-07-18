@@ -17,9 +17,9 @@ public class DefaultServer extends AbstractServer {
 
 	@Override
 	protected void doStart(RemotingContext context) {
-
+		
 	}
-
+	
 	@Override
 	protected void doClose() {
 
