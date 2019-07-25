@@ -1,13 +1,21 @@
 package io.github.pikaq.remoting.client;
 
 import io.github.pikaq.remoting.Remoteable;
-import io.github.pikaq.remoting.RemotingContext;
 
 public interface Client extends Remoteable {
 
-	void connect(ClientConfig clientConfig);
+	void connect();
 
-	void reconnect(RemotingContext clientContext);
+	void reconnect();
 
-	void disconnect(RemotingContext clientContext);
+	void disconnect();
+	
+	void setClientConfig(ClientConfig clientConfig);
+	
+	ClientConfig getClientConfig();
+	
+	String getClientName();
+	
+	void shutdown();
+	
 }

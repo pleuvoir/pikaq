@@ -5,6 +5,7 @@ import io.github.pikaq.remoting.RemotingContext;
 public class DefaultServer extends AbstractServer {
 
 	private String serverName;
+	
 
 	public DefaultServer(String serverName) {
 		this.serverName = serverName;
@@ -12,7 +13,7 @@ public class DefaultServer extends AbstractServer {
 
 	@Override
 	public String getServerName() {
-		return this.serverName;
+		return serverName;
 	}
 
 	@Override

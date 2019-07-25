@@ -29,17 +29,18 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public abstract class AbstractServer implements Server {
 
 	protected List<Thread> shutdownHooks = new ArrayList<>();
-
 	protected EventLoopGroup bossGroup;
 	protected EventLoopGroup workGroup;
+	private ServerConfig serverConfig;
 
 	@Override
-	public void start(ServerConfig serverConfig) {
+	public void start() {
 
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		try {
 			
 			validate(serverConfig);
+			
 			logger.info("[{}]开始启动", getServerName());
 
 			final ServerBootstrap bootstrap = new ServerBootstrap();
@@ -72,7 +73,7 @@ public abstract class AbstractServer implements Server {
 					doStart(remotingContext);
 					logger.info("[{}]服务已启动，监听端口：{}", getServerName(), serverConfig.getListeningPort());
 					
-			// 最后同步阻塞线程不退出
+			//最后同步阻塞线程不退出
 			f.channel().closeFuture().sync();
 		} catch (Throwable e) {
 			logger.error("[{}]服务启动失败", getServerName(), e);
@@ -84,7 +85,7 @@ public abstract class AbstractServer implements Server {
 
 	@Override
 	public void shutdown() {
-		logger.info("[{}] shutdown byebye..", getServerName());
+		logger.info("[{}]shutdown byebye..", getServerName());
 		if (bossGroup != null) {
 			bossGroup.shutdownGracefully();
 			bossGroup = null;
@@ -101,7 +102,8 @@ public abstract class AbstractServer implements Server {
 
 	protected abstract void doClose();
 
-	protected void validate(ServerConfig serverConfig) throws IllegalArgumentException {
+	private void validate(ServerConfig serverConfig) throws IllegalArgumentException {
+		Preconditions.checkNotNull(serverConfig, "未设置服务端配置");
 		int soBacklog = serverConfig.getSoBacklog();
 		Preconditions.checkArgument(soBacklog > 0, "Socket连接缓冲队列大小配置错误，必须大于0");
 		int publicThreadPoolNums = serverConfig.getPublicThreadPoolNums();
@@ -123,5 +125,15 @@ public abstract class AbstractServer implements Server {
 		this.shutdownHooks.addAll(h);
 	}
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	@Override
+	public void setServerConfig(ServerConfig serverConfig) {
+		this.serverConfig = serverConfig;
+	}
+
+	@Override
+	public ServerConfig getServerConfig() {
+		return serverConfig;
+	}
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 }

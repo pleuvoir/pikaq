@@ -1,7 +1,5 @@
 ## pikaq
 
-<img src="docs/images/timg.jpg"  width="400" height="350">
-
 [![HitCount](http://hits.dwyl.io/pleuvoir/pikaq.svg)](http://hits.dwyl.io/pleuvoir/pikaq) 
 [![GitHub issues](https://img.shields.io/github/issues/pleuvoir/pikaq.svg)](https://github.com/pleuvoir/pikaq/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license)](https://github.com/pleuvoir/pikaq/blob/master/LICENSE)
