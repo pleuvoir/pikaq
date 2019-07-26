@@ -25,20 +25,22 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 public abstract class AbstractClient implements Client {
 
+	private Bootstrap bootstrap;
 	private NioEventLoopGroup eventLoopGroup;
 	private ClientConfig clientConfig;
+	private Waiter retryWaiter = new Waiter();
+	private ConnnectManager connnectManager = ConnnectManager.INSTANCE;
+
 
 	@Override
-	public void connect() {
-
+	public void start() {
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		
-		logger.info("[{}]开始启动", getClientName());
+		logger.info("[{}]开启连接", getClientName());
 		
-		final Bootstrap bootstrap = new Bootstrap();
+		bootstrap = new Bootstrap();
 		eventLoopGroup = new NioEventLoopGroup();
 		
-		try {
 			bootstrap.group(eventLoopGroup)
 			.channel(NioSocketChannel.class)
 			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.getConnectTimeoutMillis())
@@ -54,42 +56,26 @@ public abstract class AbstractClient implements Client {
 			
 			InetSocketAddress remoteAddress = new InetSocketAddress(clientConfig.getHost(), clientConfig.getPort());
 			
-			Waiter waiter = new Waiter();
-			ChannelFuture cf = bootstrap.connect(remoteAddress).addListener(new GenericFutureListener<Future<? super Void>>(){
-				@Override
-						public void operationComplete(Future<? super Void> future) throws Exception {
-							if (future.isSuccess()) {
-
-								ChannelFuture f = (ChannelFuture) future;
-								RemotingContext remotingContext = RemotingContext.create()
-										.channel(f.channel())
-										.clientConfig(clientConfig)
-										.build();
-								RemotingContextHolder.set(remotingContext);
-								
-								logger.info("[{}]客户端已连接远程节点：[{}：{}]", getClientName(), clientConfig.getHost(),
-										clientConfig.getPort());
-								waiter.off();
-
-							} else {
-								logger.warn("[{}]客户端连接远程节点{}：{}失败，{}", getClientName(), clientConfig.getHost(),
-										clientConfig.getPort(), future.cause().getMessage());
-								waiter.off();
-							}
-						}
-					});
+			ChannelFuture cf = doConnectWithRetry(remoteAddress, clientConfig.getStartFailReconnectTimes());
 			
-			//阻塞用于多次重试连接
-			waiter.on();
+			//因为重试连接失败会触发close事件，所以需要在此手动等待返回结果
+			retryWaiter.on();
 			
-			cf.channel().closeFuture().sync();
-		} catch (Throwable e) {
-			logger.error("[{}]客户端连接远程节点错误：[{}：{}]", getClientName(), clientConfig.getHost(),
-					clientConfig.getPort(), e);
-		}finally {
-			logger.info("[{}]客户端连接即将关闭，服务运行：cost：{}ms", getClientName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-			shutdown();
-		}
+			Channel channel = cf.channel();
+			
+			RemotingContext remotingContext = RemotingContext.create()
+					.channel(channel)
+					.clientConfig(clientConfig)
+					.build();
+			RemotingContextHolder.set(remotingContext);
+			
+			connnectManager.putChannel(channel);
+			connnectManager.fireHoldTask();
+			connnectManager.printAliveChannel();
+			
+			doStart(remotingContext);
+			
+			logger.info("[{}]客户端连接启动完成，耗时：{}ms", getClientName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 	}
 
 	@Override
@@ -104,18 +90,38 @@ public abstract class AbstractClient implements Client {
 	
 	protected abstract void doClose();
 	
+	protected abstract void doStart(RemotingContext remotingContext);
 	
-	@Override
-	public void disconnect() {
-		Channel channel = RemotingContextHolder.current().getChannel();
-		//TODO 工具类验证通道活跃等
-		channel.close();
+	
+	protected ChannelFuture doConnectWithRetry(InetSocketAddress remoteAddress, int retryTimes) {
+		ChannelFuture cf = bootstrap.connect(remoteAddress);
+		cf.addListener(new GenericFutureListener<Future<? super Void>>() {
+			@Override
+			public void operationComplete(Future<? super Void> future) throws Exception {
+				if (future.isSuccess()) {
+					ChannelFuture f = (ChannelFuture) future;
+					logger.info("[{}]客户端已连接远程节点：[{}]", getClientName(), f.channel().remoteAddress());
+					retryWaiter.off();
+				} else if (retryTimes == 0) {
+					logger.error("[{}]客户端连接远程节点{}：{}尝试重连到达上限，不再进行连接。原因：{}", getClientName(), clientConfig.getHost(),
+							clientConfig.getPort(), future.cause().getMessage());
+					retryWaiter.off();
+				} else {
+					// 第几次重连
+					int sequence = clientConfig.getStartFailReconnectTimes() - retryTimes + 1;
+					int delay = 1 << sequence;
+					logger.warn("[{}]客户端连接远程节点第{}次连接失败，{} {}秒后尝试重试。", getClientName(), sequence,
+							future.cause().getMessage(), delay);
+					bootstrap.config().group().schedule(() -> {
+						doConnectWithRetry(remoteAddress, retryTimes - 1);
+					}, delay, TimeUnit.SECONDS);
+				}
+			}
+		});
+		return cf;
 	}
-
-	@Override
-	public void reconnect() {
-		
-	}
+	
+	
 
 	public void setClientConfig(ClientConfig clientConfig) {
 		this.clientConfig = clientConfig;

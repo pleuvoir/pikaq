@@ -10,7 +10,7 @@ public class ClientConfig {
 
 	private final int startFailReconnectTimes;
 
-	private int connectTimeoutMillis = 5000;
+	private final int connectTimeoutMillis;
 
 	private ClientConfig(ClientConfigBuilder builder) {
 		this.host = builder.host;
@@ -44,9 +44,9 @@ public class ClientConfig {
 
 		private final int port;
 
-		private int startFailReconnectTimes;
+		private int startFailReconnectTimes = 3;
 
-		private int connectTimeoutMillis;
+		private int connectTimeoutMillis = 5000;
 
 		public ClientConfigBuilder(String host, int port) {
 			this.host = host;

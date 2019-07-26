@@ -9,9 +9,9 @@ public class DefaultServerTest {
 
 	@Test
 	public void test() {
-		DefaultServer server = new DefaultServer("默认服务端");
+		DefaultServer server = new DefaultServer("local_server");
 		ServerConfig serverConfig = new ServerConfig();
-		serverConfig.setListeningPort(8081);
+		serverConfig.setListeningPort(8443);
 		serverConfig.setSoBacklog(1000);
 		server.setServerConfig(serverConfig);
 		server.start();

@@ -1,5 +1,7 @@
 package io.github.pikaq.remoting.client;
 
+import io.github.pikaq.remoting.RemotingContext;
+
 public class DefaultClient extends AbstractClient {
 
 	private String name;
@@ -15,6 +17,11 @@ public class DefaultClient extends AbstractClient {
 
 	@Override
 	protected void doClose() {
+
+	}
+
+	@Override
+	protected void doStart(RemotingContext remotingContext) {
 
 	}
 
