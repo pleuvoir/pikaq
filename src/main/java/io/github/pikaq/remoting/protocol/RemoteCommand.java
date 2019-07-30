@@ -9,6 +9,18 @@ public class RemoteCommand {
 	private Command cmd;
 	private Map<String, Object> attachs = Maps.newHashMap();
 
+	public static RemoteCommand createHeartbeatReq() {
+		RemoteCommand remoteCommand = new RemoteCommand();
+		remoteCommand.setCmd(Command.HEART_BEAT_REQ);
+		return remoteCommand;
+	}
+
+	public static RemoteCommand createHeartbeatRsp() {
+		RemoteCommand remoteCommand = new RemoteCommand();
+		remoteCommand.setCmd(Command.HEART_BEAT_RSP);
+		return remoteCommand;
+	}
+
 	public Command getCmd() {
 		return cmd;
 	}

@@ -6,7 +6,7 @@ import io.github.pikaq.remoting.protocol.RemoteCommand.Command;
 import io.github.pikaq.remoting.protocol.impl.HeartBeatRequest;
 import io.github.pikaq.remoting.protocol.impl.HeartBeatResponse;
 
-public class DefaultPacketBuilder extends AbstractPacketBuilder implements PacketBuilder {
+public class DefaultPacketBuilder implements PacketBuilder {
 
 	@Override
 	public Packet build(RemoteCommand remoteCommand) {
@@ -14,12 +14,17 @@ public class DefaultPacketBuilder extends AbstractPacketBuilder implements Packe
 
 		switch (cmd) {
 		case HEART_BEAT_REQ:
-			return new HeartBeatRequest();
+			return HeartBeatRequest.INSTANCE;
 		case HEART_BEAT_RSP:
-			return new HeartBeatResponse();
+			return HeartBeatResponse.INSTANCE;
 		default:
 			return null;
 		}
 	}
 
+	public static PacketBuilder getInstance() {
+		return INSTANCE;
+	}
+
+	private static final DefaultPacketBuilder INSTANCE = new DefaultPacketBuilder();
 }

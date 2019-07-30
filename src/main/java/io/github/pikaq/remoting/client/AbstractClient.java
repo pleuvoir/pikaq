@@ -13,6 +13,7 @@ import io.github.pikaq.remoting.RemoteClientException;
 import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
+import io.github.pikaq.remoting.protocol.codec.PacketCodecHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -21,6 +22,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public abstract class AbstractClient implements Client {
 
@@ -48,7 +50,9 @@ public abstract class AbstractClient implements Client {
 
 				@Override
 				protected void initChannel(SocketChannel ch) throws Exception {
-					
+					ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
+					ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+					ch.pipeline().addLast(new HeartBeatTimerHandler(clientConfig));
 				}
 			});
 			

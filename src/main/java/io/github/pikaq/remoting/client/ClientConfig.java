@@ -11,16 +11,29 @@ public class ClientConfig {
 	private final int startFailReconnectTimes;
 
 	private final int connectTimeoutMillis;
+	
+	private final Boolean devMode;
+
+	/**
+	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为5秒
+	 */
+	public final int heartbeatIntervalSeconds;
 
 	private ClientConfig(ClientConfigBuilder builder) {
 		this.host = builder.host;
 		this.port = builder.port;
 		this.startFailReconnectTimes = builder.startFailReconnectTimes;
 		this.connectTimeoutMillis = builder.connectTimeoutMillis;
+		this.heartbeatIntervalSeconds = builder.heartbeatIntervalSeconds;
+		this.devMode = builder.devMode;
 	}
 
 	public static ClientConfigBuilder create(String host, int port) {
 		return new ClientConfigBuilder(host, port);
+	}
+
+	public Boolean getDevMode() {
+		return devMode;
 	}
 
 	public String getHost() {
@@ -39,6 +52,10 @@ public class ClientConfig {
 		return connectTimeoutMillis;
 	}
 
+	public int getHeartbeatIntervalSeconds() {
+		return heartbeatIntervalSeconds;
+	}
+
 	public static class ClientConfigBuilder {
 		private final String host;
 
@@ -48,11 +65,20 @@ public class ClientConfig {
 
 		private int connectTimeoutMillis = 5000;
 
+		public int heartbeatIntervalSeconds = 5;
+		
+		private Boolean devMode = false;
+
 		public ClientConfigBuilder(String host, int port) {
 			this.host = host;
 			this.port = port;
 		}
 
+		public ClientConfigBuilder devMode(Boolean devMode) {
+			this.devMode = devMode;
+			return this;
+		}
+		
 		public ClientConfigBuilder startFailReconnectTimes(int startFailReconnectTimes) {
 			this.startFailReconnectTimes = startFailReconnectTimes;
 			return this;
@@ -60,6 +86,11 @@ public class ClientConfig {
 
 		public ClientConfigBuilder connectTimeoutMillis(int connectTimeoutMillis) {
 			this.connectTimeoutMillis = connectTimeoutMillis;
+			return this;
+		}
+
+		public ClientConfigBuilder heartbeatIntervalSeconds(int heartbeatIntervalSeconds) {
+			this.heartbeatIntervalSeconds = heartbeatIntervalSeconds;
 			return this;
 		}
 
@@ -73,6 +104,7 @@ public class ClientConfig {
 			Preconditions.checkNotNull(clientConfig, "未设置服务端配置");
 			Preconditions.checkArgument(clientConfig.getStartFailReconnectTimes() > 0, "启动连接重试次数不能为为负");
 			Preconditions.checkArgument(clientConfig.getConnectTimeoutMillis() > 0, "连接超时时间不能为为负");
+			Preconditions.checkArgument(clientConfig.getHeartbeatIntervalSeconds() > 0, "心跳间隔时间不能为为负");
 		}
 	}
 
