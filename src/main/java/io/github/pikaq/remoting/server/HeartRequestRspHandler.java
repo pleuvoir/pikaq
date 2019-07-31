@@ -6,10 +6,11 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 
 import io.github.pikaq.common.annotation.ServerSide;
+import io.github.pikaq.remoting.CommandCode;
+import io.github.pikaq.remoting.RemoteCommand;
+import io.github.pikaq.remoting.RemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.HeartBeatRequest;
 import io.github.pikaq.remoting.protocol.Packet;
-import io.github.pikaq.remoting.protocol.RemoteCommand;
-import io.github.pikaq.remoting.protocol.builder.DefaultPacketBuilder;
-import io.github.pikaq.remoting.protocol.impl.HeartBeatRequest;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -27,8 +28,9 @@ public class HeartRequestRspHandler extends SimpleChannelInboundHandler<HeartBea
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, HeartBeatRequest msg) throws Exception {
 		LOG.debug("接收到客户端心跳报文：{}", JSON.toJSONString(msg, true));
-		RemoteCommand remoteCommand = RemoteCommand.createHeartbeatRsp();
-		Packet packet = DefaultPacketBuilder.getInstance().build(remoteCommand);
+		
+		RemoteCommand<?> remoteCommand = RemoteCommandFactory.select(CommandCode.HEART_BEAT_RSP);
+		Packet packet = remoteCommand.getPacket();
 		ctx.writeAndFlush(packet);
 		LOG.debug("已响应客户端心跳报文。packet：{}", JSON.toJSONString(packet, true));
 	}

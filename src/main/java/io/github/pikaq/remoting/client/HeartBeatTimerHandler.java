@@ -6,10 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.pikaq.common.annotation.ClientSide;
+import io.github.pikaq.remoting.CommandCode;
+import io.github.pikaq.remoting.RemoteCommand;
+import io.github.pikaq.remoting.RemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.HeartBeatResponse;
 import io.github.pikaq.remoting.protocol.Packet;
-import io.github.pikaq.remoting.protocol.RemoteCommand;
-import io.github.pikaq.remoting.protocol.builder.DefaultPacketBuilder;
-import io.github.pikaq.remoting.protocol.impl.HeartBeatResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -38,8 +39,9 @@ public class HeartBeatTimerHandler extends SimpleChannelInboundHandler<HeartBeat
 		ctx.executor().schedule(() -> {
 			if (ctx.channel().isActive()) {
 				
-				RemoteCommand remoteCommand = RemoteCommand.createHeartbeatReq();
-				Packet packet = DefaultPacketBuilder.getInstance().build(remoteCommand);
+				RemoteCommand<?> remoteCommand = RemoteCommandFactory.select(CommandCode.HEART_BEAT_REQ);
+				Packet packet = remoteCommand.getPacket();
+				
 				ctx.writeAndFlush(packet);
 				this.sendHeartPacketPeriodicity(ctx); // 如果连接存活那么递归这个任务 // 数秒后继续发送，不用关闭连接池
 			}

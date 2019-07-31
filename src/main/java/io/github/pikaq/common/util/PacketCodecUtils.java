@@ -1,8 +1,8 @@
 package io.github.pikaq.common.util;
 
+import io.github.pikaq.remoting.CommandCode;
+import io.github.pikaq.remoting.RemoteCommandFactory;
 import io.github.pikaq.remoting.protocol.Packet;
-import io.github.pikaq.remoting.protocol.RemoteCommand.Command;
-import io.github.pikaq.remoting.protocol.builder.CmdPacketMapping;
 import io.github.pikaq.serialization.SerializationFactory;
 import io.github.pikaq.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
@@ -21,13 +21,14 @@ public class PacketCodecUtils {
     /**
      * 序列化
      */
+    
 	public static void encode(ByteBuf buffer, Packet packet) {
 		Serializer defaultImpl = SerializationFactory.defaultImpl();
         final byte[] bytes = defaultImpl.serialize(packet);
         // 魔数
         buffer.writeInt(MAGIC_NUMBER);
         //指令
-        buffer.writeInt(CmdPacketMapping.getCommand(packet.getClass()).getCode());
+         buffer.writeInt(RemoteCommandFactory.getCommand(packet.getClass()).getCode());
         //序列化算法
         buffer.writeInt(defaultImpl.getSerializerAlgorithm().getCode());
         //长度位
@@ -36,6 +37,7 @@ public class PacketCodecUtils {
         buffer.writeBytes(bytes);
     }
 
+	@SuppressWarnings("unchecked")
     public static Packet decode(ByteBuf byteBuf) {
         //跳过前4个字节（一个Int）的魔数
         byteBuf.skipBytes(4);
@@ -49,7 +51,7 @@ public class PacketCodecUtils {
         byte[] bytes = new byte[length];
         byteBuf.readBytes(bytes);
         //获取指令对应的实体类
-        Class<? extends Packet> packetClazz = CmdPacketMapping.getPacketClazz(Command.toEnum(cmdCode));
+		Class<? extends Packet> packetClazz = RemoteCommandFactory.select(CommandCode.toEnum(cmdCode)).getPacketClazz();
         //获取序列化器进行反序列化
         final Serializer serializer = SerializationFactory.get(algorithmCode);
         return  serializer.deserialize(bytes, packetClazz);
