@@ -1,8 +1,9 @@
 package io.github.pikaq.remoting.protocol;
 
-import io.github.pikaq.remoting.protocol.Packet;
+import lombok.Data;
 
+@Data
 public class HeartBeatResponse implements Packet {
 
-	public static final HeartBeatResponse INSTANCE = new HeartBeatResponse();
+	private long lastTimestap;
 }

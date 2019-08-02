@@ -23,6 +23,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public abstract class AbstractClient implements Client {
 
@@ -44,7 +45,7 @@ public abstract class AbstractClient implements Client {
 			bootstrap.group(eventLoopGroup)
 			.channel(NioSocketChannel.class)
 			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientConfig.getConnectTimeoutMillis())
-			.option(ChannelOption.SO_KEEPALIVE, false)
+			.option(ChannelOption.SO_KEEPALIVE, true)
 			.option(ChannelOption.TCP_NODELAY, true)
 			.handler(new ChannelInitializer<SocketChannel>() {
 
@@ -52,7 +53,8 @@ public abstract class AbstractClient implements Client {
 				protected void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 					ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
-					ch.pipeline().addLast(new HeartBeatTimerHandler(clientConfig));
+					ch.pipeline().addLast(new IdleStateHandler(10, 10, 0,TimeUnit.SECONDS)); //5秒没有读写事件
+					ch.pipeline().addLast(new ClientHeartBeatHandler(clientConfig)); 
 				}
 			});
 			

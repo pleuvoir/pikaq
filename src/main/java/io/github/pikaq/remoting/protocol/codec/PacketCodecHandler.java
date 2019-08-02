@@ -21,7 +21,7 @@ public class PacketCodecHandler extends MessageToMessageCodec<ByteBuf, Packet> {
 	protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
 		Packet packet = PacketCodecUtils.decode(byteBuf);
 		out.add(packet);
-		LOG.debug("解码成功。{}", JSON.toJSONString(packet, true));
+		LOG.debug("解码成功。{}", JSON.toJSONString(packet));
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class PacketCodecHandler extends MessageToMessageCodec<ByteBuf, Packet> {
 		ByteBuf byteBuf = ctx.channel().alloc().ioBuffer();
 		PacketCodecUtils.encode(byteBuf, packet);
 		out.add(byteBuf);
-		LOG.debug("编码成功。{}", JSON.toJSONString(packet, true));
+		LOG.debug("编码成功。{}", JSON.toJSONString(packet));
 	}
 
 	public static final PacketCodecHandler INSTANCE = new PacketCodecHandler();

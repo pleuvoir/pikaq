@@ -55,12 +55,14 @@ public abstract class AbstractServer implements Server {
 					.option(ChannelOption.SO_BACKLOG, serverConfig.getSoBacklog())
 					.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 					.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-					.childOption(ChannelOption.SO_KEEPALIVE, false).childOption(ChannelOption.TCP_NODELAY, true)
+					.childOption(ChannelOption.SO_KEEPALIVE, true)
+					.childOption(ChannelOption.TCP_NODELAY, true)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 							ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+							ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
 							ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
 						}
 					});

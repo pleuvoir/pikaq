@@ -11,13 +11,23 @@ public class ClientConfig {
 	private final int startFailReconnectTimes;
 
 	private final int connectTimeoutMillis;
-	
+
 	private final Boolean devMode;
 
 	/**
-	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为5秒
+	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为10秒
 	 */
 	public final int heartbeatIntervalSeconds;
+
+	/**
+	 * 读空闲检测事件，超过后触发事件
+	 */
+	public final long readerIdleTime;
+
+	/**
+	 * 写空闲检测事件，超过后触发事件
+	 */
+	public final long writerIdleTime;
 
 	private ClientConfig(ClientConfigBuilder builder) {
 		this.host = builder.host;
@@ -25,6 +35,8 @@ public class ClientConfig {
 		this.startFailReconnectTimes = builder.startFailReconnectTimes;
 		this.connectTimeoutMillis = builder.connectTimeoutMillis;
 		this.heartbeatIntervalSeconds = builder.heartbeatIntervalSeconds;
+		this.readerIdleTime = builder.readerIdleTime;
+		this.writerIdleTime = builder.writerIdleTime;
 		this.devMode = builder.devMode;
 	}
 
@@ -65,8 +77,18 @@ public class ClientConfig {
 
 		private int connectTimeoutMillis = 5000;
 
-		public int heartbeatIntervalSeconds = 5;
-		
+		public int heartbeatIntervalSeconds = 10;
+
+		/**
+		 * 读空闲检测事件，超过后触发事件，默认30秒
+		 */
+		public long readerIdleTime = 30;
+
+		/**
+		 * 写空闲检测事件，超过后触发事件，默认30秒
+		 */
+		public long writerIdleTime = 30;
+
 		private Boolean devMode = false;
 
 		public ClientConfigBuilder(String host, int port) {
@@ -74,11 +96,21 @@ public class ClientConfig {
 			this.port = port;
 		}
 
+		public ClientConfigBuilder writerIdleTime(long writerIdleTime) {
+			this.writerIdleTime = writerIdleTime;
+			return this;
+		}
+
+		public ClientConfigBuilder readerIdleTime(long readerIdleTime) {
+			this.readerIdleTime = readerIdleTime;
+			return this;
+		}
+
 		public ClientConfigBuilder devMode(Boolean devMode) {
 			this.devMode = devMode;
 			return this;
 		}
-		
+
 		public ClientConfigBuilder startFailReconnectTimes(int startFailReconnectTimes) {
 			this.startFailReconnectTimes = startFailReconnectTimes;
 			return this;

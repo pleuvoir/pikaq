@@ -1,5 +1,7 @@
 package io.github.pikaq.remoting.protocol;
 
-public interface Packet {
+import io.github.pikaq.common.util.ToJSON;
+
+public interface Packet extends ToJSON {
 
 }
