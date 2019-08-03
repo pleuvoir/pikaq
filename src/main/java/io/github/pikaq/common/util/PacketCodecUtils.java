@@ -1,15 +1,15 @@
 package io.github.pikaq.common.util;
 
-import io.github.pikaq.remoting.CommandCode;
-import io.github.pikaq.remoting.RemoteCommandFactory;
-import io.github.pikaq.remoting.protocol.Packet;
+import io.github.pikaq.remoting.protocol.command.CommandCode;
+import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.github.pikaq.serialization.SerializationFactory;
 import io.github.pikaq.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
 
 
 /**
- * Packet编解码器
+ * RemoteCommand编解码器
  */
 public class PacketCodecUtils {
 
@@ -19,16 +19,15 @@ public class PacketCodecUtils {
     private static final int MAGIC_NUMBER = 9527;
 
     /**
-     * 序列化
+     * 编码
      */
-    
-	public static void encode(ByteBuf buffer, Packet packet) {
+	public static void encode(ByteBuf buffer, RemoteCommand command) {
 		Serializer defaultImpl = SerializationFactory.defaultImpl();
-        final byte[] bytes = defaultImpl.serialize(packet);
+        final byte[] bytes = defaultImpl.serialize(command);
         // 魔数
         buffer.writeInt(MAGIC_NUMBER);
         //指令
-         buffer.writeInt(RemoteCommandFactory.getCommand(packet.getClass()).getCode());
+         buffer.writeInt(command.getCommandCode().getCode());
         //序列化算法
         buffer.writeInt(defaultImpl.getSerializerAlgorithm().getCode());
         //长度位
@@ -37,8 +36,10 @@ public class PacketCodecUtils {
         buffer.writeBytes(bytes);
     }
 
-	@SuppressWarnings("unchecked")
-    public static Packet decode(ByteBuf byteBuf) {
+	/**
+	 * 解码
+	 */
+    public static RemoteCommand decode(ByteBuf byteBuf) {
         //跳过前4个字节（一个Int）的魔数
         byteBuf.skipBytes(4);
         //指令
@@ -51,10 +52,10 @@ public class PacketCodecUtils {
         byte[] bytes = new byte[length];
         byteBuf.readBytes(bytes);
         //获取指令对应的实体类
-		Class<? extends Packet> packetClazz = RemoteCommandFactory.select(CommandCode.toEnum(cmdCode)).getPacketClazz();
+		Class<? extends RemoteCommand> cmdClazz = DefaultRemoteCommandFactory.INSTANCE.fromCommandCode(CommandCode.toEnum(cmdCode));
         //获取序列化器进行反序列化
         final Serializer serializer = SerializationFactory.get(algorithmCode);
-        return  serializer.deserialize(bytes, packetClazz);
+        return  serializer.deserialize(bytes,cmdClazz);
     }
 
 }

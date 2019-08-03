@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 
+import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.PortUtils;
 import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.protocol.codec.PacketCodecHandler;
+import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -68,6 +70,9 @@ public abstract class AbstractServer implements Server {
 					});
 
 			ChannelFuture f = bootstrap.bind().sync();
+			
+			//初始化远程命令工厂
+			DefaultRemoteCommandFactory.INSTANCE.load(PikaqConst.COMMAND_SCANNER_PATH);
 			
 			RemotingContext remotingContext = RemotingContext.create()
 					.channel(f.channel())

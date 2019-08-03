@@ -23,7 +23,8 @@ public class ServerConfig {
 	private int listeningPort = 0;
 
 	/**
-	 * 读写空闲检测事件，默认为60秒，单位秒；0或者负数不启用
+	 * 读写空闲检测超时时间，默认为120秒，单位秒；0或者负数不启用<br>
+	 * 当120秒未接收到读写请求时触发事件
 	 */
-	private long allIdleTime = 60;
+	private long allIdleTime = 120;
 }

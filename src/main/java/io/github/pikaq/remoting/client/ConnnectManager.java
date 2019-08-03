@@ -61,7 +61,7 @@ public class ConnnectManager {
 							LOG.info("目前存活的通道：{}", v.localAddress());
 						});
 					}
-				}, 5, 30, TimeUnit.SECONDS);
+				}, 5, 60, TimeUnit.SECONDS);
 	}
 
 	public void getOrCreateChannel(String addr){

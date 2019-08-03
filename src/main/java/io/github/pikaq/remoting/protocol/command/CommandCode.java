@@ -1,4 +1,4 @@
-package io.github.pikaq.remoting;
+package io.github.pikaq.remoting.protocol.command;
 
 public enum CommandCode {
 
@@ -56,5 +56,5 @@ public enum CommandCode {
 		}
 		return null;
 	}
-
+	
 }

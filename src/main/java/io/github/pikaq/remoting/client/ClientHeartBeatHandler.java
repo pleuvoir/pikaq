@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.pikaq.common.annotation.ClientSide;
-import io.github.pikaq.remoting.CommandCode;
-import io.github.pikaq.remoting.RemoteCommandFactory;
-import io.github.pikaq.remoting.protocol.HeartBeatRequest;
-import io.github.pikaq.remoting.protocol.HeartBeatResponse;
+import io.github.pikaq.remoting.protocol.command.CommandCode;
+import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.HeartBeatRspCommand;
+import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -20,7 +20,7 @@ import io.netty.handler.timeout.IdleStateEvent;
  * 这个类不能共享
  */
 @ClientSide
-public class ClientHeartBeatHandler extends SimpleChannelInboundHandler<HeartBeatResponse> {
+public class ClientHeartBeatHandler extends SimpleChannelInboundHandler<HeartBeatRspCommand> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ClientHeartBeatHandler.class);
 
@@ -42,24 +42,22 @@ public class ClientHeartBeatHandler extends SimpleChannelInboundHandler<HeartBea
 	private void sendHeartPacketPeriodicity(ChannelHandlerContext ctx) {
 		ctx.executor().schedule(() -> {
 			if (ctx.channel().isActive()) {
-				HeartBeatRequest packet = (HeartBeatRequest) RemoteCommandFactory.select(CommandCode.HEART_BEAT_REQ)
-						.getPacket();
-				packet.setLastTimestap(System.currentTimeMillis());
-				ctx.writeAndFlush(packet);
-				LOG.debug("发送心跳报文到对端，packet={}", packet.toJSON());
-				this.sendHeartPacketPeriodicity(ctx); // 如果连接存活那么递归这个任务 // 数秒后继续发送，不用关闭连接池
+				RemoteCommand request = DefaultRemoteCommandFactory.INSTANCE.newRemoteCommand(CommandCode.HEART_BEAT_REQ);
+				ctx.writeAndFlush(request);
+				LOG.debug("[client]发送心跳报文到对端。心跳间隔，{}s，request={}", clientConfig.getHeartbeatIntervalSeconds(),request.toJSON());
+				this.sendHeartPacketPeriodicity(ctx); // 如果连接存活那么递归这个任务数秒后继续发送，不用关闭连接池
 			}
 		}, clientConfig.getHeartbeatIntervalSeconds(), TimeUnit.SECONDS);
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, HeartBeatResponse packet) throws Exception {
-		LOG.debug("接收到服务端心跳响应。packet={}", packet.toJSON());
+	protected void channelRead0(ChannelHandlerContext ctx, HeartBeatRspCommand response) throws Exception {
+		LOG.debug("[client]接收到服务端心跳响应。response={}", response.toJSON());
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		LOG.info("异常，关闭连接。");
+		LOG.info("[client]异常，关闭连接。");
 		ctx.channel().close();
 	}
 }

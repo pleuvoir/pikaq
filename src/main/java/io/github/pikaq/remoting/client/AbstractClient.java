@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
+import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.remoting.RemoteClientException;
 import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.protocol.codec.PacketCodecHandler;
+import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -53,7 +55,7 @@ public abstract class AbstractClient implements Client {
 				protected void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 					ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
-					ch.pipeline().addLast(new IdleStateHandler(10, 10, 0,TimeUnit.SECONDS)); //5秒没有读写事件
+					ch.pipeline().addLast(new IdleStateHandler(0, 0, 30,TimeUnit.SECONDS)); //30秒没有读写事件
 					ch.pipeline().addLast(new ClientHeartBeatHandler(clientConfig)); 
 				}
 			});
@@ -64,7 +66,14 @@ public abstract class AbstractClient implements Client {
 
 		Channel channel = future.channel();
 
-		RemotingContext remotingContext = RemotingContext.create().channel(channel).clientConfig(clientConfig).build();
+		//初始化远程命令工厂
+		DefaultRemoteCommandFactory.INSTANCE.load(PikaqConst.COMMAND_SCANNER_PATH);
+		
+		RemotingContext remotingContext = RemotingContext.create()
+				.channel(channel)
+				.clientConfig(clientConfig)
+				.build();
+		
 		RemotingContextHolder.set(remotingContext);
 
 		connnectManager.putChannel(channel);
