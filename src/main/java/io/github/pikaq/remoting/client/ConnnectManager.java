@@ -13,19 +13,18 @@ import io.netty.channel.Channel;
 
 /**
  * 连接管理器
+ * 
  * @author pleuvoir
  *
  */
 public class ConnnectManager {
 
-	
 	protected static final Logger LOG = LoggerFactory.getLogger(ConnnectManager.class);
-	
+
 	public static final ConnnectManager INSTANCE = new ConnnectManager();
-	
+
 	public ConcurrentHashMap<String, Channel> tables = new ConcurrentHashMap<String, Channel>();
-	
-	
+
 	public synchronized void putChannel(Channel channel) {
 		String addr = RemotingUtils.parseChannelRemoteAddr(channel);
 		if (!validate(channel)) {
@@ -37,7 +36,7 @@ public class ConnnectManager {
 		}
 		tables.put(addr, channel);
 	}
-	
+
 	public void fireHoldTask() {
 		Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("hold_conn")))
 				.scheduleAtFixedRate(new Runnable() {
@@ -45,36 +44,34 @@ public class ConnnectManager {
 					public void run() {
 						tables.forEach((k, v) -> {
 							if (!validate(v)) {
+								LOG.debug("剔除连接通道：{}", v.localAddress());
 								removeChannel(k);
 							}
 						});
 					}
-				}, 0, 5, TimeUnit.SECONDS);
+				}, 5, 30, TimeUnit.SECONDS);
 	}
-	
+
 	public void printAliveChannel() {
 		Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("hold_conn")))
 				.scheduleAtFixedRate(new Runnable() {
 					@Override
 					public void run() {
 						tables.forEach((k, v) -> {
-							LOG.info("目前存活的通道：{}", v.localAddress());
+							LOG.debug("目前存活的通道：{}", v.localAddress());
 						});
 					}
 				}, 5, 60, TimeUnit.SECONDS);
 	}
 
-	public void getOrCreateChannel(String addr){
-		
-	}
-	
-	public synchronized void removeChannel(String addr){
+	public synchronized void removeChannel(String addr) {
 		tables.remove(addr);
 	}
-	
+
 	public boolean validate(Channel channel) {
 		return channel != null && channel.isActive();
 	}
-	
-	private ConnnectManager(){}
+
+	private ConnnectManager() {
+	}
 }

@@ -6,12 +6,12 @@ import com.google.common.collect.Maps;
 
 import io.github.pikaq.common.util.Generator;
 
-public abstract class RemoteBaseCommand implements RemoteCommand {
+public abstract class RemoteBaseCommand extends RemoteCommand {
 
 	protected Map<String, Object> attachments = Maps.newConcurrentMap();
 
 	@Override
-	public String requestId() {
+	public String getRequestId() {
 		return Generator.nextUUID();
 	}
 

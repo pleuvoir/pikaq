@@ -1,6 +1,7 @@
 package io.github.pikaq.remoting.client;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -14,8 +15,11 @@ import io.github.pikaq.remoting.RemoteClientException;
 import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
-import io.github.pikaq.remoting.protocol.codec.PacketCodecHandler;
+import io.github.pikaq.remoting.RunningState;
+import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
+import io.github.pikaq.remoting.protocol.command.CarrierCommand;
 import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -32,11 +36,12 @@ public abstract class AbstractClient implements Client {
 	private Bootstrap bootstrap;
 	private NioEventLoopGroup eventLoopGroup;
 	private ClientConfig clientConfig;
+	private volatile RunningState runningState = RunningState.WAITING;
 	private ConnnectManager connnectManager = ConnnectManager.INSTANCE;
 
 
 	@Override
-	public void start() throws RemoteClientException {
+	public void connect() {
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		
 		logger.info("[{}]开启连接", getClientName());
@@ -54,9 +59,10 @@ public abstract class AbstractClient implements Client {
 				@Override
 				protected void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
-					ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
-					ch.pipeline().addLast(new IdleStateHandler(0, 0, 30,TimeUnit.SECONDS)); //30秒没有读写事件
-					ch.pipeline().addLast(new ClientHeartBeatHandler(clientConfig)); 
+					ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
+					ch.pipeline().addLast(new IdleStateHandler(30, 0, 0,TimeUnit.SECONDS)); //30秒没有读事件
+					ch.pipeline().addLast(new HealthyChecker(AbstractClient.this)); 
+					ch.pipeline().addLast(new ClientRemoteCommandtDispatcher());
 				}
 			});
 			
@@ -82,6 +88,7 @@ public abstract class AbstractClient implements Client {
 
 		doStart(remotingContext);
 
+		runningState = RunningState.RUNNING;
 		logger.info("[{}]客户端连接启动完成，耗时：{}ms", getClientName(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 	}
 
@@ -93,6 +100,7 @@ public abstract class AbstractClient implements Client {
 		}
 		RemotingContextHolder.clear();
 		doClose();
+		runningState = RunningState.WAITING;
 	}
 	
 	protected abstract void doClose();
@@ -100,7 +108,7 @@ public abstract class AbstractClient implements Client {
 	protected abstract void doStart(RemotingContext remotingContext);
 	
 	protected ChannelFuture doConnectWithRetry(InetSocketAddress remoteAddress, int retryTimes)
-			throws RemoteClientException {
+			 {
 		ChannelFuture future = bootstrap.connect(remoteAddress);
 		future.awaitUninterruptibly(); //connect不可以使用sync会报错
 		if (future.isSuccess()) {
@@ -135,6 +143,23 @@ public abstract class AbstractClient implements Client {
 	@Override
 	public RemoteLocationEnum remoteLocation() {
 		return RemoteLocationEnum.CLIENT;
+	}
+
+	@Override
+	public RunningState runningState() {
+		return runningState;
+	}
+
+	@Override
+	public CompletableFuture<RemoteCommand> sendRequest(RemoteCommand request) {
+		if(!runningState.isRunning()){
+			logger.debug("客户端未连接，请连接后再发送。");
+			CarrierCommand<String> cmd = CarrierCommand.buildString(false, "客户端未连接，请连接后再发送。", null);
+			RemotingContextHolder.current().getChannel().writeAndFlush(cmd);
+		}
+		logger.info("[client]发送报文：{}", request.toJSON());
+		ChannelFuture writeAndFlush = RemotingContextHolder.current().getChannel().writeAndFlush(request);
+		return null;
 	}
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

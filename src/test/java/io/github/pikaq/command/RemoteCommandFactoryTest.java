@@ -11,18 +11,19 @@ public class RemoteCommandFactoryTest {
 		
 		DefaultRemoteCommandFactory.INSTANCE.load(PikaqConst.COMMAND_SCANNER_PATH);
 		DefaultRemoteCommandFactory.INSTANCE.load(PikaqConst.COMMAND_SCANNER_PATH);
+		
 		RemoteCommand heartBeatReqCommand = DefaultRemoteCommandFactory.INSTANCE.newRemoteCommand(CommandCode.HEART_BEAT_REQ);
 		heartBeatReqCommand.setAttachs("currentTimeMillis", System.currentTimeMillis());
 		
 		System.out.println(heartBeatReqCommand.toJSON());
 		
 		
-		RemoteCommand convert = DefaultRemoteCommandFactory.INSTANCE.convertConvert2Response(heartBeatReqCommand.getCommandCode());
-		System.out.println(convert.toJSON());
+		//	DefaultRemoteCommandFactory.INSTANCE.load("io.github.pikaq.command");
+//		UserReqCommand userReqCommand = new UserReqCommand();
+//		userReqCommand.setName("pleuvoir");
+//		
+//		System.out.println(userReqCommand.toJSON());
 		
-		
-		RemoteCommand convertConvert2Response = DefaultRemoteCommandFactory.INSTANCE.convertConvert2Response(heartBeatReqCommand);
-		System.out.println(convertConvert2Response.toJSON());
 	}
 
 }

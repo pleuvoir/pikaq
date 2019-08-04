@@ -4,9 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.pikaq.common.annotation.ServerSide;
-import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
-import io.github.pikaq.remoting.protocol.command.HeartBeatReqCommand;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.PingCommand;
+import io.github.pikaq.remoting.protocol.command.PongCommand;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,15 +16,16 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 @ServerSide
 @ChannelHandler.Sharable
-public class HeartRequestRspHandler extends SimpleChannelInboundHandler<HeartBeatReqCommand> {
+public class HeartRequestRspHandler extends SimpleChannelInboundHandler<PingCommand> {
 
 	public static final HeartRequestRspHandler INSTANCE = new HeartRequestRspHandler();
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, HeartBeatReqCommand request) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, PingCommand request) throws Exception {
 		
 		LOG.debug("[server]接收到客户端心跳报文：{}", request.toJSON());
-		RemoteCommand command = DefaultRemoteCommandFactory.INSTANCE.convertConvert2Response(request);
+		
+		PongCommand command = new PongCommand();
 		command.setAttachs("currentTimeMillis", System.currentTimeMillis());
 		
 		ctx.writeAndFlush(command);

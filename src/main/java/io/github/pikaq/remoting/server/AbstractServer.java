@@ -17,7 +17,7 @@ import io.github.pikaq.common.util.PortUtils;
 import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
-import io.github.pikaq.remoting.protocol.codec.PacketCodecHandler;
+import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -63,7 +63,7 @@ public abstract class AbstractServer implements Server {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
 							ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
-							ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+							ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 							ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
 							ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
 						}

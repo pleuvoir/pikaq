@@ -1,11 +1,8 @@
 package io.github.pikaq.remoting;
 
-public enum ServerState {
+public enum RunningState {
 
-	RUNNING, // 运行态
-	WAITING, // 等待运行
-
-	;
+	RUNNING, WAITING;
 
 	public boolean isRunning() {
 		return RUNNING.equals(this);

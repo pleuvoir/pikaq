@@ -4,6 +4,6 @@ public enum CommandCodeType {
 
 	SYSTEM, 
 	RPC, 
-	PAYLOAD;
+	USER;
 
 }

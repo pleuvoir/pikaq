@@ -2,6 +2,7 @@ package io.github.pikaq.remoting.protocol.command;
 
 public enum CommandCode {
 
+	CARRIER(0),
 	
 	HEART_BEAT_REQ(-1),
 	HEART_BEAT_RSP(1),

@@ -4,6 +4,7 @@ import org.junit.Assert;
 
 import io.github.pikaq.remoting.client.ClientConfig;
 import io.github.pikaq.remoting.client.DefaultClient;
+import io.github.pikaq.remoting.protocol.command.PingCommand;
 
 public class DefaultClientTest {
 
@@ -23,7 +24,16 @@ public class DefaultClientTest {
 
 		Assert.assertEquals(client.remoteLocation(), RemoteLocationEnum.CLIENT);
 		client.setClientConfig(clientConfig);
-		client.start();
+		
+		Assert.assertTrue(!client.runningState().isRunning());
+		client.connect();
+		
+		Assert.assertTrue(client.runningState().isRunning());
+		
+		
+		PingCommand pingCommand = new PingCommand();
+		client.sendRequest(pingCommand);
+		
 	}
 
 }

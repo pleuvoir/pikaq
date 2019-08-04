@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting;
 
-public class RemoteClientException extends Exception {
+public class RemoteClientException extends RuntimeException {
 
 	private static final long serialVersionUID = -7486436135397777942L;
 

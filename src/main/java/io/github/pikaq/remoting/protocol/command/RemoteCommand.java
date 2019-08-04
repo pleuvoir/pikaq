@@ -5,31 +5,32 @@ import java.util.Map;
 import io.github.pikaq.common.util.ToJSON;
 
 /**
- * 远程命令接口
+ * 远程命令
  * @author pleuvoir
  *
  */
-public interface RemoteCommand extends ToJSON{
+public abstract class RemoteCommand implements ToJSON {
 
-	String requestId();
-	
 	/**
-	 * 获取命令指令枚举
+	 * 请求唯一ID
 	 */
-	CommandCode getCommandCode();
+	public abstract String getRequestId();
+
+	/**
+	 * 获取命令指令
+	 */
+	public abstract int getSymbol();
 
 	/**
 	 * 命令码类型 SYSTEM, RPC, USER
 	 */
-	CommandCodeType commandCodeType();
-	
-	Map<String, Object> getAttachs();
-	
-	void setAttachs(String key, Object value);
-	
+	public abstract CommandCodeType getCommandCodeType();
+
+	public abstract Map<String, Object> getAttachs();
+
 	/**
-	 * 是否客户端请求
+	 * 附加参数，对象中不定义属性时可使用
 	 */
-	boolean isRequest();
+	public abstract void setAttachs(String key, Object value);
 
 }

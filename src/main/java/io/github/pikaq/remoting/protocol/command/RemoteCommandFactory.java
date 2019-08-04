@@ -1,7 +1,12 @@
 package io.github.pikaq.remoting.protocol.command;
 
+import io.github.pikaq.remoting.protocol.RemoteCommandHandler;
+
 /**
- * 远程命令工厂，构建远程命令（通常是发送给对端的数据对象）
+ * 远程命令工厂
+ * 
+ * <p>构建远程命令（通常是发送给对端的数据对象）该类供系统预制指令使用
+ * 
  * @author pleuvoir
  *
  */
@@ -19,16 +24,13 @@ public interface RemoteCommandFactory {
 	 * 根据指令编码还原远程命令
 	 * @param code  指令编码
 	 */
-	Class<? extends RemoteCommand> fromCommandCode(CommandCode code) throws RemoteCommandException;
+	Class<? extends RemoteCommand> fromSymbol(int symbol) throws RemoteCommandException;
 	
 	/**
-	 * 请求命令转为响应命令
+	 * 远程命令处理器选择
 	 */
-	RemoteCommand convertConvert2Response(RemoteCommand request)  throws RemoteCommandException;
+	RemoteCommandHandler<RemoteCommand, RemoteCommand> select(int symbol);
 	
-	/**
-	 * 请求指令转为响应命令
-	 */
-	RemoteCommand convertConvert2Response(CommandCode code)  throws RemoteCommandException;
+	void registerHandler(RemoteCommand cmd,RemoteCommandHandler handler);
 	
 }

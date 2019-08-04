@@ -13,16 +13,20 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import io.github.pikaq.remoting.protocol.RemoteCommandHandler;
+
 public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultRemoteCommandFactory.class);
+	
 	public static final DefaultRemoteCommandFactory INSTANCE = new DefaultRemoteCommandFactory();
 
-	private static final ConcurrentMap<CommandCode, Class<? extends RemoteCommand>> MAPPINGS = Maps.newConcurrentMap();
+	private static final ConcurrentMap<Integer, Class<? extends RemoteCommand>> MAPPINGS = Maps.newConcurrentMap();
 
 	@Override
 	public void load(String scannerPath) {
 		Reflections packageInfo = new Reflections(scannerPath);
-		Set<Class<? extends RemoteCommand>> subs = packageInfo.getSubTypesOf(RemoteCommand.class);
+		Set<Class<? extends RemoteCommand>> subs = packageInfo.getSubTypesOf(RemoteCommand.class); //TODO 替换为spring中类扫描
 		if (subs.isEmpty()) {
 			throw new RemoteCommandException("加载包错误，未找到命令实现，scannerPath=" + scannerPath);
 		}
@@ -32,14 +36,13 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 			}
 			try {
 				RemoteCommand remoteCommandInstance = remoteCommandClazz.newInstance();
-				CommandCode commandCode = remoteCommandInstance.getCommandCode();
-			
-				Class<? extends RemoteCommand> prev = MAPPINGS.putIfAbsent(commandCode, remoteCommandClazz);
+				int symbol = remoteCommandInstance.getSymbol();
+				Class<? extends RemoteCommand> prev = MAPPINGS.putIfAbsent(symbol, remoteCommandClazz);
 				if (prev != null) {
-					LOG.warn("远程命令[{}][{}]:{} 已初始化过，不再重复加载，请检查扫描包", remoteCommandInstance.commandCodeType(), commandCode,
+					LOG.warn("远程命令[{}][{}]:{} 已初始化过，不再重复加载，请检查扫描包", remoteCommandInstance.getCommandCodeType(), symbol,
 							remoteCommandInstance.getClass().getCanonicalName());
 				} else {
-					LOG.info("加载远程命令[{}][{}]:{}", remoteCommandInstance.commandCodeType(), commandCode,
+					LOG.info("加载远程命令[{}][{}]:{}", remoteCommandInstance.getCommandCodeType(), symbol,
 							remoteCommandInstance.getClass().getCanonicalName());
 				}
 				
@@ -52,7 +55,7 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
 	@Override
 	public RemoteCommand newRemoteCommand(CommandCode code) {
-		Class<? extends RemoteCommand> remoteCommandClazz = MAPPINGS.get(code);
+		Class<? extends RemoteCommand> remoteCommandClazz = MAPPINGS.get(code.getCode());
 		try {
 			RemoteCommand cmd = remoteCommandClazz.newInstance();
 			return cmd;
@@ -63,34 +66,28 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public Class<? extends RemoteCommand> fromCommandCode(CommandCode code) {
-		Iterator<Entry<CommandCode, Class<? extends RemoteCommand>>> iterator = MAPPINGS.entrySet().iterator();
+	public Class<? extends RemoteCommand> fromSymbol(int symbol) {
+		Iterator<Entry<Integer, Class<? extends RemoteCommand>>> iterator = MAPPINGS.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<CommandCode, java.lang.Class<? extends RemoteCommand>> entry = (Map.Entry<CommandCode, java.lang.Class<? extends RemoteCommand>>) iterator
+			Map.Entry<Integer, java.lang.Class<? extends RemoteCommand>> entry = (Map.Entry<Integer, java.lang.Class<? extends RemoteCommand>>) iterator
 					.next();
-			if (entry.getKey() == code) {
+			if (entry.getKey() == symbol) {
 				return entry.getValue();
 			}
 		}
-		LOG.error(code + " :target CommandCode not found");
-		throw new RemoteCommandException(code + " :target CommandCode not found");
+		LOG.error(symbol + " :target CommandCode not found");
+		throw new RemoteCommandException(symbol + " :target CommandCode not found");
+	}
+
+
+
+	@Override
+	public RemoteCommandHandler<RemoteCommand, RemoteCommand> select(int symbol) {
+		return null;
 	}
 
 	@Override
-	public RemoteCommand convertConvert2Response(CommandCode code) {
-		if (code.isRequest() && code.toResponse() != null) {
-			return newRemoteCommand(code.toResponse());
-		}
-		throw new RemoteCommandException(code + ":无对应的响应命令");
+	public void registerHandler(RemoteCommand cmd, RemoteCommandHandler handler) {
+		
 	}
-
-	@Override
-	public RemoteCommand convertConvert2Response(RemoteCommand request) throws RemoteCommandException {
-		return this.convertConvert2Response(request.getCommandCode());
-	}
-
-	private DefaultRemoteCommandFactory() {
-	}
-
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultRemoteCommandFactory.class);
 }
