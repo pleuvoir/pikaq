@@ -26,7 +26,8 @@ public class HeartRequestRspHandler extends SimpleChannelInboundHandler<PingComm
 		LOG.debug("[server]接收到客户端心跳报文：{}", request.toJSON());
 		
 		PongCommand command = new PongCommand();
-		command.setAttachs("currentTimeMillis", System.currentTimeMillis());
+		command.setId(request.getId());
+		command.set("currentTimeMillis", System.currentTimeMillis());
 		
 		ctx.writeAndFlush(command);
 		LOG.debug("[server]已响应客户端心跳报文，cmd：{}", command.toJSON());

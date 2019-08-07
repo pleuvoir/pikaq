@@ -1,40 +1,22 @@
 package io.github.pikaq.remoting.protocol.command;
 
-import java.util.Map;
-
-import com.google.common.collect.Maps;
-
 import io.github.pikaq.common.util.Generator;
 
+/**
+ * 所有的远程命令通过继承此类实现
+ * @author pleuvoir
+ *
+ */
 public abstract class RemoteBaseCommand extends RemoteCommand {
 
-	protected Map<String, Object> attachments = Maps.newConcurrentMap();
-
-	@Override
-	public String getRequestId() {
-		return Generator.nextUUID();
+	public RemoteBaseCommand() {
+		super();
+		setId(Generator.nextUUID());
+		setCommandCodeType(commandCodeType());
+		setSymbol(symbol());
 	}
 
-	@Override
-	public Map<String, Object> getAttachs() {
-		return attachments;
-	}
+	public abstract CommandCodeType commandCodeType();
 
-	@Override
-	public void setAttachs(String key, Object value) {
-		attachments.put(key, value);
-	}
-
-	public void set(String key, Object value) {
-		attachments.put(key, value);
-	}
-	
-	public String getString(String key) {
-		return String.valueOf(attachments.get(key));
-	}
-
-	public int getInteger(String key) {
-		return Integer.valueOf(getString(key));
-	}
-
+	public abstract int symbol();
 }

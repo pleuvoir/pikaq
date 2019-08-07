@@ -66,6 +66,7 @@ public abstract class AbstractServer implements Server {
 							ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 							ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
 							ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
+							ch.pipeline().addLast(ServerRemoteCommandtDispatcher.INSTANCE);
 						}
 					});
 

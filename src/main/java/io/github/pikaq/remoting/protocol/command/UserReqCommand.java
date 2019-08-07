@@ -1,5 +1,5 @@
 
-package io.github.pikaq.command;
+package io.github.pikaq.remoting.protocol.command;
 
 import io.github.pikaq.remoting.protocol.command.CommandCodeType;
 import io.github.pikaq.remoting.protocol.command.RemoteBaseCommand;

@@ -2,35 +2,48 @@ package io.github.pikaq.remoting.protocol.command;
 
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import io.github.pikaq.common.util.ToJSON;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 远程命令
  * @author pleuvoir
  *
  */
-public abstract class RemoteCommand implements ToJSON {
+public class RemoteCommand implements ToJSON {
+	
+	protected RemoteCommand(){}
 
-	/**
-	 * 请求唯一ID
-	 */
-	public abstract String getRequestId();
+	//请求唯一id，client和server共享
+	@Getter
+	@Setter
+	protected String id;
+	
+	//指令，用于匹配远程命令
+	@Getter
+	@Setter
+	protected int symbol;
+	
+	//命令码类型 SYSTEM, RPC, USER
+	@Getter
+	@Setter
+	protected CommandCodeType commandCodeType;
+	
+	//附加参数
+	@Getter
+	@Setter
+	protected Map<String, Object> attachments = Maps.newConcurrentMap();
 
-	/**
-	 * 获取命令指令
-	 */
-	public abstract int getSymbol();
+	
+	public void set(String key, Object value) {
+		attachments.put(key, value);
+	}
 
-	/**
-	 * 命令码类型 SYSTEM, RPC, USER
-	 */
-	public abstract CommandCodeType getCommandCodeType();
-
-	public abstract Map<String, Object> getAttachs();
-
-	/**
-	 * 附加参数，对象中不定义属性时可使用
-	 */
-	public abstract void setAttachs(String key, Object value);
-
+	@SuppressWarnings("unchecked")
+	public <T> T get(String key){
+		return (T) attachments.get(key);
+	}
 }

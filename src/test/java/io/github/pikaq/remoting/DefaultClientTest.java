@@ -1,10 +1,14 @@
 package io.github.pikaq.remoting;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import org.junit.Assert;
 
 import io.github.pikaq.remoting.client.ClientConfig;
 import io.github.pikaq.remoting.client.DefaultClient;
 import io.github.pikaq.remoting.protocol.command.PingCommand;
+import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 
 public class DefaultClientTest {
 
@@ -32,8 +36,14 @@ public class DefaultClientTest {
 		
 		
 		PingCommand pingCommand = new PingCommand();
-		client.sendRequest(pingCommand);
+		CompletableFuture<RemoteCommand> sendAsyncRequest = client.sendAsyncRequest(pingCommand);
 		
+		try {
+			RemoteCommand remoteCommand = sendAsyncRequest.get();
+			System.out.println(remoteCommand.toJSON());
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

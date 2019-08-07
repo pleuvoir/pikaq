@@ -11,7 +11,9 @@ public interface Client extends Remoteable {
 
 	void connect() throws RemoteClientException;
 	
-	CompletableFuture<RemoteCommand> sendRequest(RemoteCommand request);
+	RemoteCommand sendRequest(RemoteCommand request);
+	
+	CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request);
 
 	void setClientConfig(ClientConfig clientConfig);
 
