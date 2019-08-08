@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.pikaq.remoting.Pendings;
-import io.github.pikaq.remoting.protocol.RemoteCommandHandler;
+import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,22 +30,20 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, RemoteCommand response) throws Exception {
 		
-		System.out.println("1111111111111111");
-		
 		int symbol = response.getSymbol();
-		RemoteCommandHandler handler = DefaultRemoteCommandFactory.INSTANCE.select(symbol);
+		RemoteCommandProcessor processor = DefaultRemoteCommandFactory.INSTANCE.select(symbol);
 
-		if (handler != null) {
-			logger.info("ClientRemoteCommandtDispatcher received {}，handler={}", response.toJSON(),
-					handler.getClass().getCanonicalName());
-			handler.handler(ctx, response);
+		if (processor != null) {
+			logger.debug("ClientRemoteCommandtDispatcher received {}，handler={}", response.toJSON(),
+					processor.getClass().getCanonicalName());
+			processor.handler(ctx, response);
 		} else {
 			// 未找到处理器，直接标记为完成
 			CompletableFuture<RemoteCommand> prevRequest = Pendings.remove(response.getId());
 			if (prevRequest != null) {
 				prevRequest.complete(response);
 			}
-			logger.info("ClientRemoteCommandtDispatcher received {}，prevRequest={}", response.toJSON(),
+			logger.debug("ClientRemoteCommandtDispatcher received {}，prevRequest={}", response.toJSON(),
 					prevRequest);
 		}
 	}

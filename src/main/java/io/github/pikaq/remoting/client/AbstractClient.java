@@ -13,19 +13,17 @@ import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.remoting.Pendings;
 import io.github.pikaq.remoting.RemoteClientException;
-import io.github.pikaq.remoting.RemoteLocationEnum;
+import io.github.pikaq.remoting.RemoteExceptionTranslator;
 import io.github.pikaq.remoting.RemoteSendException;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.RunningState;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
-import io.github.pikaq.remoting.protocol.command.CarrierCommand;
 import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -144,10 +142,6 @@ public abstract class AbstractClient implements Client {
 		return clientConfig;
 	}
 
-	@Override
-	public RemoteLocationEnum remoteLocation() {
-		return RemoteLocationEnum.CLIENT;
-	}
 
 	@Override
 	public RunningState runningState() {
@@ -156,40 +150,25 @@ public abstract class AbstractClient implements Client {
 
 	@Override
 	public RemoteCommand sendRequest(RemoteCommand request) {
-		Channel channel = RemotingContextHolder.current().getChannel();
+		CompletableFuture<RemoteCommand> promise = this.sendAsyncRequest(request);
+		RemoteCommand result = null;
+		try {
+			result = promise.get(PikaqConst.DEFAULT_SEND_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		} catch (Throwable e) {
+			throw RemoteExceptionTranslator.convertRemoteException(e);
+		}
+		return result;
+	}
+
+	@Override
+	public CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request) {
 		
 		if (!runningState.isRunning()) {
 			logger.debug("客户端未连接，请连接后再发送。");
 			throw new RemoteSendException("客户端未连接，请连接后再发送。");
 		}
 		
-		logger.info("[client]发送报文：{}", request.toJSON());
-		
-		channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
-			
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
-				if (!future.isSuccess()) {
-					throw new RemoteSendException("消息发送未成功");
-				}
-			}
-		});
-		
-		return request;
-	}
-
-	@Override
-	public CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request) {
-		
-		
 		CompletableFuture<RemoteCommand> promise = new CompletableFuture<RemoteCommand>();
-		
-		if(!runningState.isRunning()){
-			logger.debug("客户端未连接，请连接后再发送。");
-			CarrierCommand<String> cmd = CarrierCommand.buildString(false, "客户端未连接，请连接后再发送。", null);
-			promise.complete(cmd);
-			return promise;
-		} 
 		
 		Channel channel = RemotingContextHolder.current().getChannel();
 		

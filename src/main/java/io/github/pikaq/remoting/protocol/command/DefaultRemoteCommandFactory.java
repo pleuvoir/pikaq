@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-import io.github.pikaq.remoting.protocol.RemoteCommandHandler;
+import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 
 public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
@@ -82,12 +82,12 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
 
 	@Override
-	public RemoteCommandHandler<RemoteCommand, RemoteCommand> select(int symbol) {
+	public RemoteCommandProcessor<RemoteCommand, RemoteCommand> select(int symbol) {
 		return null;
 	}
 
 	@Override
-	public void registerHandler(RemoteCommand cmd, RemoteCommandHandler handler) {
+	public void registerHandler(RemoteCommand cmd, RemoteCommandProcessor handler) {
 		
 	}
 }

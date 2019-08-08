@@ -33,6 +33,9 @@ public class ClientSendMessageTest {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-	}
 
+		
+		RemoteCommand rsp = client.sendRequest(cmd);
+		System.out.println("同步响应 - " + rsp.toJSON());
+	}
 }

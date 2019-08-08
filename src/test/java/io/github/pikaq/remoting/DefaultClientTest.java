@@ -26,7 +26,6 @@ public class DefaultClientTest {
 
 		DefaultClient client = new DefaultClient("local_client");
 
-		Assert.assertEquals(client.remoteLocation(), RemoteLocationEnum.CLIENT);
 		client.setClientConfig(clientConfig);
 		
 		Assert.assertTrue(!client.runningState().isRunning());

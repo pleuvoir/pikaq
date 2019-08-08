@@ -14,7 +14,6 @@ import com.google.common.base.Stopwatch;
 
 import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.PortUtils;
-import io.github.pikaq.remoting.RemoteLocationEnum;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
@@ -125,10 +124,6 @@ public abstract class AbstractServer implements Server {
 		Preconditions.checkArgument(PortUtils.checkPortAvailable(listeningPort), listeningPort + "端口被占用，请重新配置。");
 	}
 
-	@Override
-	public RemoteLocationEnum remoteLocation() {
-		return RemoteLocationEnum.SERVER;
-	}
 
 	@Override
 	public void registerShutdownHooks(Thread... hooks) {

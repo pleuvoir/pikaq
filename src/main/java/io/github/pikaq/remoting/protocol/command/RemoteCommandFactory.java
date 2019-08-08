@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting.protocol.command;
 
-import io.github.pikaq.remoting.protocol.RemoteCommandHandler;
+import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 
 /**
  * 远程命令工厂
@@ -29,8 +29,8 @@ public interface RemoteCommandFactory {
 	/**
 	 * 远程命令处理器选择
 	 */
-	RemoteCommandHandler<RemoteCommand, RemoteCommand> select(int symbol);
+	RemoteCommandProcessor<RemoteCommand, RemoteCommand> select(int symbol);
 	
-	void registerHandler(RemoteCommand cmd,RemoteCommandHandler handler);
+	void registerHandler(RemoteCommand cmd,RemoteCommandProcessor handler);
 	
 }
