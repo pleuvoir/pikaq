@@ -1,7 +1,7 @@
 package io.github.pikaq.common.util;
 
-import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.serialization.SerializationFactory;
 import io.github.pikaq.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
@@ -51,7 +51,7 @@ public class RemoteCommandCodecUtils {
         byte[] bytes = new byte[length];
         byteBuf.readBytes(bytes);
         //获取指令对应的实体类
-		Class<? extends RemoteCommand> cmdClazz = DefaultRemoteCommandFactory.INSTANCE.fromSymbol(symbol);
+		Class<? extends RemoteCommand> cmdClazz = SingletonFactoy.get(RemoteCommandFactory.class).fromSymbol(symbol);
         //获取序列化器进行反序列化
         final Serializer serializer = SerializationFactory.get(algorithmCode);
         return  serializer.deserialize(bytes,cmdClazz);

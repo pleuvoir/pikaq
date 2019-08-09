@@ -5,11 +5,12 @@ import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 /**
  * 远程命令工厂
  * 
- * <p>构建远程命令（通常是发送给对端的数据对象）该类供系统预制指令使用
+ * <p>构建远程命令（通常是发送给对端的数据对象）
  * 
  * @author pleuvoir
  *
  */
+@SuppressWarnings("rawtypes")
 public interface RemoteCommandFactory {
 	
 	void load(String scannerPath) throws RemoteCommandException;
@@ -26,11 +27,15 @@ public interface RemoteCommandFactory {
 	 */
 	Class<? extends RemoteCommand> fromSymbol(int symbol) throws RemoteCommandException;
 	
+	
+	/**
+	 * 注册远程命令处理器
+	 */
+	void registerHandler(int symbol, RemoteCommandProcessor handler);
+	
 	/**
 	 * 远程命令处理器选择
 	 */
-	RemoteCommandProcessor<RemoteCommand, RemoteCommand> select(int symbol);
-	
-	void registerHandler(RemoteCommand cmd,RemoteCommandProcessor handler);
+	RemoteCommandProcessor select(int symbol);
 	
 }

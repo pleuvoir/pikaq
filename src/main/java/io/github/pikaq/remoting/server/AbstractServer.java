@@ -14,10 +14,12 @@ import com.google.common.base.Stopwatch;
 
 import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.PortUtils;
+import io.github.pikaq.common.util.SingletonFactoy;
+import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
-import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -35,10 +37,15 @@ public abstract class AbstractServer implements Server {
 	protected EventLoopGroup bossGroup;
 	protected EventLoopGroup workGroup;
 	private ServerConfig serverConfig;
+	
+	
+	AbstractServer() {
+		Initializer.init();
+	}
 
 	@Override
 	public void start() {
-
+		
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		try {
 			
@@ -64,7 +71,7 @@ public abstract class AbstractServer implements Server {
 							ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 							ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 							ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
-							ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
+						//	ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
 							ch.pipeline().addLast(ServerRemoteCommandtDispatcher.INSTANCE);
 						}
 					});
@@ -72,7 +79,7 @@ public abstract class AbstractServer implements Server {
 			ChannelFuture f = bootstrap.bind().sync();
 			
 			//初始化远程命令工厂
-			DefaultRemoteCommandFactory.INSTANCE.load(PikaqConst.COMMAND_SCANNER_PATH);
+			SingletonFactoy.get(RemoteCommandFactory.class).load(PikaqConst.COMMAND_SCANNER_PATH);
 			
 			RemotingContext remotingContext = RemotingContext.create()
 					.channel(f.channel())

@@ -15,18 +15,19 @@ import com.google.common.collect.Maps;
 
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 
+@SuppressWarnings("all")
 public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultRemoteCommandFactory.class);
-	
-	public static final DefaultRemoteCommandFactory INSTANCE = new DefaultRemoteCommandFactory();
 
 	private static final ConcurrentMap<Integer, Class<? extends RemoteCommand>> MAPPINGS = Maps.newConcurrentMap();
+
+	private static final ConcurrentMap<Integer, RemoteCommandProcessor> DISPATCHER = Maps.newConcurrentMap();
 
 	@Override
 	public void load(String scannerPath) {
 		Reflections packageInfo = new Reflections(scannerPath);
-		Set<Class<? extends RemoteCommand>> subs = packageInfo.getSubTypesOf(RemoteCommand.class); //TODO 替换为spring中类扫描
+		Set<Class<? extends RemoteCommand>> subs = packageInfo.getSubTypesOf(RemoteCommand.class);
 		if (subs.isEmpty()) {
 			throw new RemoteCommandException("加载包错误，未找到命令实现，scannerPath=" + scannerPath);
 		}
@@ -45,7 +46,7 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 					LOG.info("加载远程命令[{}][{}]:{}", remoteCommandInstance.getCommandCodeType(), symbol,
 							remoteCommandInstance.getClass().getCanonicalName());
 				}
-				
+
 			} catch (Throwable e) {
 				LOG.error("加载包错误，", e);
 				throw new RemoteCommandException(e);
@@ -79,15 +80,14 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 		throw new RemoteCommandException(symbol + " :target CommandCode not found");
 	}
 
-
-
 	@Override
 	public RemoteCommandProcessor<RemoteCommand, RemoteCommand> select(int symbol) {
-		return null;
+		return DISPATCHER.get(symbol);
 	}
 
 	@Override
-	public void registerHandler(RemoteCommand cmd, RemoteCommandProcessor handler) {
-		
+	public void registerHandler(int symbol, RemoteCommandProcessor handler) {
+		DISPATCHER.putIfAbsent(symbol, handler);
 	}
+
 }

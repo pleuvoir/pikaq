@@ -5,10 +5,13 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.pikaq.common.annotation.ClientSide;
+import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.Pendings;
+import io.github.pikaq.remoting.RemoteCommandLifeCycleListener;
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
-import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -21,6 +24,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @author pleuvoir
  *
  */
+@ClientSide
 public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<RemoteCommand> {
 
 	
@@ -30,8 +34,11 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, RemoteCommand response) throws Exception {
 		
-		int symbol = response.getSymbol();
-		RemoteCommandProcessor processor = DefaultRemoteCommandFactory.INSTANCE.select(symbol);
+		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
+		
+		commandLifeCycleListener.beforeHandler(response);
+		
+		RemoteCommandProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class).select(response.getSymbol());
 
 		if (processor != null) {
 			logger.debug("ClientRemoteCommandtDispatcher received {}，handler={}", response.toJSON(),
@@ -46,6 +53,8 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 			logger.debug("ClientRemoteCommandtDispatcher received {}，prevRequest={}", response.toJSON(),
 					prevRequest);
 		}
+		
+		commandLifeCycleListener.afterHandler(response);
 	}
 
 }

@@ -12,5 +12,5 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface RemoteCommandProcessor<REQ extends RemoteCommand, RSP extends RemoteCommand> {
 
-	RSP handler(ChannelHandlerContext ctx, REQ command);
+	RSP handler(ChannelHandlerContext ctx, REQ request);
 }
