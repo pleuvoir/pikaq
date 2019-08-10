@@ -63,5 +63,9 @@ public class UserCommandInitTest extends CommandHandlerInitAdapter {
 }
 ```
 
-项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令。
+项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令。同样，远程命令也需要提供初始化路径，通过继承`RemoteCommandInitAdapter`类，告知用户远程命令所在的包，完成加载。
+
+
+这么做的目标是为了减少扫描的时间，以及更清晰的知道目标类所在的位置。
+
 
