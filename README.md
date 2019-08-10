@@ -18,7 +18,7 @@
 - [x] 心跳
 - [x] 自定义通讯协议
 - [x] 自定义业务处理器
-- [x] 业务线程异步
+- [x] 异步业务线程
 
 ## 快速开始
 
@@ -35,8 +35,29 @@
 
 ### 自定义业务
 
-项目启动时会扫描所有实现了`Initable`接口的类，并且按照优先级进行初始化行为。可以使用此特性实现业务处理器的注册。为了方便起见，通过继承`CommandHandlerInitAdapter`来进行业务处理器的注册。
+项目启动时会扫描所有实现了`Initable`接口的类，并且按照优先级进行初始化行为。可以使用此特性实现命令包/业务处理器的注册。
 
+
+#### 指令
+
+项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令。远程命令需要提供初始化路径，通过继承`RemoteCommandInitAdapter`类，告知用户远程命令所在的包，完成加载。
+
+如下：
+
+```java
+public class PentaqCommandHandlerInit extends RemoteCommandInitAdapter {
+
+	@Override
+	protected String location() {
+		return "io.pentaq.remoting.command";
+	}
+}
+
+```
+
+#### 指令处理器
+
+所有的指令都通过继承`RemoteCommandProcessor`进行处理。此外，通过继承`CommandProcessorInitAdapter`来进行业务处理器的注册。
 
 ```java
 public class UserCommandInitTest extends CommandHandlerInitAdapter {
@@ -63,9 +84,10 @@ public class UserCommandInitTest extends CommandHandlerInitAdapter {
 }
 ```
 
-项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令。同样，远程命令也需要提供初始化路径，通过继承`RemoteCommandInitAdapter`类，告知用户远程命令所在的包，完成加载。
+### QA
 
+#### 为什么不直接扫描，而是需要指定路径？
 
-这么做的目标是为了减少扫描的时间，以及更清晰的知道目标类所在的位置。
+为了减少扫描的时间，以及更清晰的知道目标类所在的位置。
 
 

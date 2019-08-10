@@ -1,11 +1,11 @@
 package io.github.pikaq.basic;
 
-import io.github.pikaq.initialization.helper.CommandHandlerInitAdapter;
+import io.github.pikaq.initialization.helper.CommandProcessorInitAdapter;
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.channel.ChannelHandlerContext;
 
-public class UserCommandInitTest extends CommandHandlerInitAdapter {
+public class UserCommandInitTest extends CommandProcessorInitAdapter {
 
 	@Override
 	public void init() {

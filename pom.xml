@@ -4,7 +4,7 @@
 
 	<groupId>io.github.pleuvoir</groupId>
 	<artifactId>pikaq</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	<description>Communication Layer Framework Base on Netty.</description>
@@ -76,7 +76,6 @@
 			<groupId>com.alipay.sofa</groupId>
 			<artifactId>hessian</artifactId>
 			<version>${hessian.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

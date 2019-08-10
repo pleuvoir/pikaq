@@ -8,7 +8,7 @@ import io.github.pikaq.remoting.server.PingCommandProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CommandHandlerInit implements Initable {
+public class CommandProcessorInit implements Initable {
 
 	public static final int ORDER = HIGHEST_LEVEL - 1;
 
