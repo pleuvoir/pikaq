@@ -57,10 +57,10 @@ public class PentaqCommandHandlerInit extends RemoteCommandInitAdapter {
 
 #### 指令处理器
 
-所有的指令都通过继承`RemoteCommandProcessor`进行处理。此外，通过继承`CommandProcessorInitAdapter`来进行业务处理器的注册。
+所有的指令都通实现承`RemoteCommandProcessor`接口进行处理。此外，通过继承`CommandProcessorInitAdapter`来进行业务处理器的注册。
 
 ```java
-public class UserCommandInitTest extends CommandHandlerInitAdapter {
+public class UserCommandInitTest extends CommandProcessorInitAdapter {
 
 	@Override
 	public void init() {
