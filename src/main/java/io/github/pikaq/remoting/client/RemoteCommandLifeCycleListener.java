@@ -1,4 +1,4 @@
-package io.github.pikaq.remoting;
+package io.github.pikaq.remoting.client;
 
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 public interface RemoteCommandLifeCycleListener {
 
 	@Slf4j
-	public static class Adapter implements RemoteCommandLifeCycleListener {
+	public class Adapter implements RemoteCommandLifeCycleListener {
 
 		@Override
 		public void beforeSend(RemoteCommand request) {

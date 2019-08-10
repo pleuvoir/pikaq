@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 
-import io.github.pikaq.common.util.RemoteCommandCodecUtils;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -19,7 +18,7 @@ public class RemoteCommandCodecHandler extends MessageToMessageCodec<ByteBuf, Re
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
-		RemoteCommand response = RemoteCommandCodecUtils.decode(byteBuf);
+		RemoteCommand response = RemoteCommandCodecHelper.decode(byteBuf);
 		out.add(response);
 		LOG.debug("解码成功。{}", JSON.toJSONString(response));
 	}
@@ -27,7 +26,7 @@ public class RemoteCommandCodecHandler extends MessageToMessageCodec<ByteBuf, Re
 	@Override
 	protected void encode(ChannelHandlerContext ctx, RemoteCommand request, List<Object> out) {
 		ByteBuf byteBuf = ctx.channel().alloc().ioBuffer();
-		RemoteCommandCodecUtils.encode(byteBuf, request);
+		RemoteCommandCodecHelper.encode(byteBuf, request);
 		out.add(byteBuf);
 		LOG.debug("编码成功。{}", JSON.toJSONString(request));
 	}

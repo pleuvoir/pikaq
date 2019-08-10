@@ -11,7 +11,7 @@ import io.github.pikaq.serialization.SerializerAlgorithm;
  * @author pleuvoir
  *
  */
-public class FastJSONSerializerImpl implements Serializer {
+public class FastjsonSerializer implements Serializer {
 
 	@Override
 	public SerializerAlgorithm getSerializerAlgorithm() {

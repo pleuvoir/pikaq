@@ -32,6 +32,11 @@ public class RemoteCommand implements ToJSON {
 	@Setter
 	protected CommandCodeType commandCodeType;
 	
+	//是否需要响应
+	@Getter
+	@Setter
+	protected boolean responsible;
+	
 	//附加参数
 	@Getter
 	@Setter

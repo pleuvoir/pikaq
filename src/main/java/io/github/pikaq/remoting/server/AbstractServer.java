@@ -12,14 +12,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 
-import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.PortUtils;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.remoting.RemotingContext;
-import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
-import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -71,22 +68,16 @@ public abstract class AbstractServer implements Server {
 							ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 							ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 							ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
-						//	ch.pipeline().addLast(HeartRequestRspHandler.INSTANCE);
-							ch.pipeline().addLast(ServerRemoteCommandtDispatcher.INSTANCE);
+							ch.pipeline().addLast(SingletonFactoy.get(ServerRemoteCommandtDispatcher.class));
 						}
 					});
 
 			ChannelFuture f = bootstrap.bind().sync();
 			
-			//初始化远程命令工厂
-			SingletonFactoy.get(RemoteCommandFactory.class).load(PikaqConst.COMMAND_SCANNER_PATH);
-			
 			RemotingContext remotingContext = RemotingContext.create()
 					.channel(f.channel())
 					.serverConfig(serverConfig)
 					.build();
-			
-					RemotingContextHolder.set(remotingContext);
 					
 					doStart(remotingContext);
 					logger.info("[{}]服务已启动，监听端口：{}", getServerName(), serverConfig.getListeningPort());
@@ -112,7 +103,6 @@ public abstract class AbstractServer implements Server {
 			workGroup.shutdownGracefully();
 			workGroup = null;
 		}
-		RemotingContextHolder.clear();
 		doClose();
 	}
 

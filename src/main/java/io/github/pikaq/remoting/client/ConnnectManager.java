@@ -61,7 +61,7 @@ public class ConnnectManager {
 							LOG.debug("目前存活的通道：{}", v.localAddress());
 						});
 					}
-				}, 5, 60, TimeUnit.SECONDS);
+				}, 60, 300, TimeUnit.SECONDS);
 	}
 
 	public synchronized void removeChannel(String addr) {

@@ -17,4 +17,9 @@ public class PingCommand extends RemoteBaseCommand {
 		return CommandCodeType.SYSTEM;
 	}
 
+	@Override
+	public boolean responsible() {
+		return true;
+	}
+
 }

@@ -27,4 +27,9 @@ public class ServerConfig {
 	 * 当120秒未接收到读写请求时触发事件
 	 */
 	private long allIdleTime = 120;
+	
+	/**
+	 * 业务超时时间（秒），默认5秒
+	 */
+	private Integer optTimeout = 5;
 }

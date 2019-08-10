@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.2.3</logback.version>
-		<netty.version>4.1.6.Final</netty.version>
+		<netty.version>4.1.9.Final</netty.version>
 		<fastjson.version>1.2.31</fastjson.version>
 		<hessian.version>3.3.6</hessian.version>
 		<lang3.version>3.7</lang3.version>
@@ -23,10 +23,21 @@
 		<guava.version>23.6-jre</guava.version>
 		<uuid.version>3.1.5</uuid.version>
 		<reflections.version>0.9.9-RC1</reflections.version>
+		<akka.version>2.4.17</akka.version>
 	</properties>
 
 
 	<dependencies>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-slf4j_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>

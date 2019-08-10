@@ -27,4 +27,9 @@ public class UserReqCommand extends RemoteBaseCommand {
 		return CommandCodeType.USER;
 	}
 
+	@Override
+	public boolean responsible() {
+		return false;
+	}
+
 }

@@ -17,4 +17,9 @@ public class PongCommand extends RemoteBaseCommand {
 		return CommandCodeType.SYSTEM;
 	}
 
+	@Override
+	public boolean responsible() {
+		return false;
+	}
+
 }

@@ -39,4 +39,9 @@ public class CarrierCommand<T> extends RemoteBaseCommand {
 				.build();
 	}
 
+	@Override
+	public boolean responsible() {
+		return false;
+	}
+
 }

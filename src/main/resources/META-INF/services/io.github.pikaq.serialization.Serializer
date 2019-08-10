@@ -1,2 +1,2 @@
-io.github.pikaq.serialization.fastjson.FastJSONSerializerImpl
-io.github.pikaq.serialization.hessian.HessianSerializerImpl
+io.github.pikaq.serialization.fastjson.FastjsonSerializer
+io.github.pikaq.serialization.hessian.HessianSerializer

@@ -1,5 +1,6 @@
-package io.github.pikaq.common.util;
+package io.github.pikaq.remoting.protocol.codec;
 
+import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.serialization.SerializationFactory;
@@ -10,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * RemoteCommand编解码器
  */
-public class RemoteCommandCodecUtils {
+public class RemoteCommandCodecHelper {
 
     /**
      * 魔法数字

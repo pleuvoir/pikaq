@@ -3,14 +3,13 @@ package io.github.pikaq.serialization;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.github.pikaq.serialization.SerializerAlgorithm;
-import io.github.pikaq.serialization.fastjson.FastJSONSerializerImpl;
+import io.github.pikaq.serialization.fastjson.FastjsonSerializer;
 
 public class FastjsonSerializerImplTest {
 
 	@Test
 	public void test() {
-		FastJSONSerializerImpl fastjsonSerializerImpl = new FastJSONSerializerImpl();
+		FastjsonSerializer fastjsonSerializerImpl = new FastjsonSerializer();
 		SerializerAlgorithm serializerAlgorithm = fastjsonSerializerImpl.getSerializerAlgorithm();
 		Assert.assertEquals(serializerAlgorithm.getCode(), SerializerAlgorithm.JSON.getCode());
 

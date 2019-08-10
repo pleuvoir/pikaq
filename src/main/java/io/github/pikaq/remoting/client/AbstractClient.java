@@ -15,11 +15,9 @@ import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.remoting.Pendings;
 import io.github.pikaq.remoting.RemoteClientException;
-import io.github.pikaq.remoting.RemoteCommandLifeCycleListener;
 import io.github.pikaq.remoting.RemoteExceptionTranslator;
 import io.github.pikaq.remoting.RemoteSendException;
 import io.github.pikaq.remoting.RemotingContext;
-import io.github.pikaq.remoting.RemotingContextHolder;
 import io.github.pikaq.remoting.RunningState;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
@@ -41,6 +39,7 @@ public abstract class AbstractClient implements Client {
 	private Bootstrap bootstrap;
 	private NioEventLoopGroup eventLoopGroup;
 	private ClientConfig clientConfig;
+	private volatile Channel channel;
 	private volatile RunningState runningState = RunningState.WAITING;
 	private ConnnectManager connnectManager = ConnnectManager.INSTANCE;
 
@@ -72,7 +71,7 @@ public abstract class AbstractClient implements Client {
 					ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 					ch.pipeline().addLast(new IdleStateHandler(30, 0, 0,TimeUnit.SECONDS)); //30秒没有读事件
 					ch.pipeline().addLast(new HealthyChecker(AbstractClient.this)); 
-					ch.pipeline().addLast(new ClientRemoteCommandtDispatcher());
+					ch.pipeline().addLast(SingletonFactoy.get(ClientRemoteCommandtDispatcher.class));
 				}
 			});
 			
@@ -80,15 +79,13 @@ public abstract class AbstractClient implements Client {
 
 		ChannelFuture future = doConnectWithRetry(remoteAddress, clientConfig.getStartFailReconnectTimes());
 
-		Channel channel = future.channel();
+		channel = future.channel();
 
 		RemotingContext remotingContext = RemotingContext.create()
 				.channel(channel)
 				.clientConfig(clientConfig)
 				.build();
 		
-		RemotingContextHolder.set(remotingContext);
-
 		connnectManager.putChannel(channel);
 		connnectManager.fireHoldTask();
 		connnectManager.printAliveChannel();
@@ -105,7 +102,6 @@ public abstract class AbstractClient implements Client {
 		if (eventLoopGroup != null) {
 			eventLoopGroup.shutdownGracefully();
 		}
-		RemotingContextHolder.clear();
 		doClose();
 		runningState = RunningState.WAITING;
 	}
@@ -154,7 +150,16 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public RemoteCommand sendRequest(RemoteCommand request) {
+	public void sendOneWay(RemoteCommand request) throws RemoteSendException {
+		checkRunningState();
+		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
+		commandLifeCycleListener.beforeSend(request);
+		this.channel.writeAndFlush(request);
+		commandLifeCycleListener.afterSend(request);
+	}
+
+	@Override
+	public RemoteCommand sendRequest(RemoteCommand request) throws RemoteSendException {
 		CompletableFuture<RemoteCommand> promise = this.sendAsyncRequest(request);
 		RemoteCommand result = null;
 		try {
@@ -166,24 +171,19 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request) {
+	public CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request) throws RemoteSendException {
 		
-		if (!runningState.isRunning()) {
-			logger.debug("客户端未连接，请连接后再发送。");
-			throw new RemoteSendException("客户端未连接，请连接后再发送。");
-		}
+		checkRunningState();
 		
 		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		commandLifeCycleListener.beforeSend(request);
 		
 		CompletableFuture<RemoteCommand> promise = new CompletableFuture<RemoteCommand>();
 		
-		Channel channel = RemotingContextHolder.current().getChannel();
-		
 		//占位，保存请求记录，promise将在另外一个线程中complete，或者在下面exception
 		Pendings.put(request.getId(), promise);
 		
-		channel.writeAndFlush(request).addListener(new GenericFutureListener<Future<? super Void>>() {
+		this.channel.writeAndFlush(request).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
 			public void operationComplete(Future<? super Void> f) throws Exception {
 				
@@ -202,6 +202,17 @@ public abstract class AbstractClient implements Client {
 		
 		commandLifeCycleListener.afterSend(request);
 		return promise;
+	}
+	
+	
+	private void checkRunningState() throws RemoteSendException{
+		if (!runningState.isRunning()) {
+			logger.debug("客户端未连接，请连接后再发送。");
+			throw new RemoteSendException("客户端未连接，请连接后再发送。");
+		}
+		if (!connnectManager.validate(channel)) {
+			throw new RemoteSendException("连接通道不可用");
+		}
 	}
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

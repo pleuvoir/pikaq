@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import io.github.pikaq.common.annotation.ClientSide;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.Pendings;
-import io.github.pikaq.remoting.RemoteCommandLifeCycleListener;
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 import io.github.pikaq.remoting.protocol.command.RemoteCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -25,6 +25,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  *
  */
 @ClientSide
+@ChannelHandler.Sharable
 public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<RemoteCommand> {
 
 	

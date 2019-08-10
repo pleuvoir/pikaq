@@ -17,7 +17,7 @@ import io.github.pikaq.serialization.SerializerAlgorithm;
  * @author pleuvoir
  *
  */
-public class HessianSerializerImpl implements Serializer {
+public class HessianSerializer implements Serializer {
 
 	private SerializerFactory serializerFactory = new SerializerFactory();
 

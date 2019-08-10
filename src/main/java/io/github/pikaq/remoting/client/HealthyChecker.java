@@ -72,12 +72,14 @@ public class HealthyChecker extends SimpleChannelInboundHandler<PongCommand> {
 	
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		ctx.executor().schedule(() -> {
-			LOG.info("[{}] Try to reconnecting...", HealthyChecker.class.getSimpleName());
-			client.shutdown();
-			client.connect();
-		}, 5, TimeUnit.SECONDS);
-		ctx.fireChannelInactive();
+		if (client.runningState().isRunning()) {
+			ctx.executor().schedule(() -> {
+				LOG.info("[{}] Try to reconnecting...", HealthyChecker.class.getSimpleName());
+				client.shutdown();
+				client.connect();
+			}, 5, TimeUnit.SECONDS);
+			ctx.fireChannelInactive();
+		}
 	}
 
 }

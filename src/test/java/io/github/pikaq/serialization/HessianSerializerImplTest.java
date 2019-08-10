@@ -3,13 +3,13 @@ package io.github.pikaq.serialization;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.github.pikaq.serialization.hessian.HessianSerializerImpl;
+import io.github.pikaq.serialization.hessian.HessianSerializer;
 
 public class HessianSerializerImplTest {
 
 	@Test
 	public void test() {
-		HessianSerializerImpl impl = new HessianSerializerImpl();
+		HessianSerializer impl = new HessianSerializer();
 		SerializerAlgorithm serializerAlgorithm = impl.getSerializerAlgorithm();
 		Assert.assertEquals(serializerAlgorithm.getCode(), SerializerAlgorithm.HESSIAN.getCode());
 
