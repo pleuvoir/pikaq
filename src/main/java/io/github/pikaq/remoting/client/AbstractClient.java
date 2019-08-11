@@ -20,7 +20,7 @@ import io.github.pikaq.remoting.RemoteSendException;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RunningState;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -150,7 +150,7 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public void sendOneWay(RemoteCommand request) throws RemoteSendException {
+	public void sendOneWay(RemotingCommand request) throws RemoteSendException {
 		checkRunningState();
 		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		commandLifeCycleListener.beforeSend(request);
@@ -159,9 +159,9 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public RemoteCommand sendRequest(RemoteCommand request) throws RemoteSendException {
-		CompletableFuture<RemoteCommand> promise = this.sendAsyncRequest(request);
-		RemoteCommand result = null;
+	public RemotingCommand sendRequest(RemotingCommand request) throws RemoteSendException {
+		CompletableFuture<RemotingCommand> promise = this.sendAsyncRequest(request);
+		RemotingCommand result = null;
 		try {
 			result = promise.get(PikaqConst.DEFAULT_SEND_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 		} catch (Throwable e) {
@@ -171,17 +171,17 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public CompletableFuture<RemoteCommand> sendAsyncRequest(RemoteCommand request) throws RemoteSendException {
+	public CompletableFuture<RemotingCommand> sendAsyncRequest(RemotingCommand request) throws RemoteSendException {
 		
 		checkRunningState();
 		
 		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		commandLifeCycleListener.beforeSend(request);
 		
-		CompletableFuture<RemoteCommand> promise = new CompletableFuture<RemoteCommand>();
+		CompletableFuture<RemotingCommand> promise = new CompletableFuture<RemotingCommand>();
 		
 		//占位，保存请求记录，promise将在另外一个线程中complete，或者在下面exception
-		Pendings.put(request.getId(), promise);
+		Pendings.put(request.getMessageId(), promise);
 		
 		this.channel.writeAndFlush(request).addListener(new GenericFutureListener<Future<? super Void>>() {
 			@Override
@@ -192,7 +192,7 @@ public abstract class AbstractClient implements Client {
 				if (!f.isSuccess()) {
 					commandLifeCycleListener.sendException(request, f.cause());
 					//异常时移除请求记录，并设置为失败
-					CompletableFuture<RemoteCommand> prev = Pendings.remove(request.getId());
+					CompletableFuture<RemotingCommand> prev = Pendings.remove(request.getMessageId());
 					if (prev != null) {
 						prev.completeExceptionally(f.cause());
 					}

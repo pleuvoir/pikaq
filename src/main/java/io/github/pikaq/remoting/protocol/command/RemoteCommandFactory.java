@@ -19,13 +19,13 @@ public interface RemoteCommandFactory {
 	 * 根据指令编码构建一个远程命令
 	 * @param code 指令编码
 	 */
-	RemoteCommand newRemoteCommand(CommandCode code) throws RemoteCommandException;
+	RemotingCommand newRemoteCommand(CommandCode code) throws RemoteCommandException;
 
 	/**
 	 * 根据指令编码还原远程命令
 	 * @param code  指令编码
 	 */
-	Class<? extends RemoteCommand> fromSymbol(int symbol) throws RemoteCommandException;
+	Class<? extends RemotingCommand> fromSymbol(int symbol) throws RemoteCommandException;
 	
 	
 	/**

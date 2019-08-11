@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting.client;
 
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import lombok.extern.slf4j.Slf4j;
 
 public interface RemoteCommandLifeCycleListener {
@@ -9,47 +9,47 @@ public interface RemoteCommandLifeCycleListener {
 	public class Adapter implements RemoteCommandLifeCycleListener {
 
 		@Override
-		public void beforeSend(RemoteCommand request) {
+		public void beforeSend(RemotingCommand request) {
 			log.info("beforeSend - request：{}", request.toJSON());
 		}
 
 		@Override
-		public void afterSend(RemoteCommand request) {
+		public void afterSend(RemotingCommand request) {
 			log.info("afterSend - request：{}", request.toJSON());
 		}
 
 		@Override
-		public void sendComplete(RemoteCommand request) {
+		public void sendComplete(RemotingCommand request) {
 			log.info("sendComplete - request：{}", request.toJSON());
 		}
 
 		@Override
-		public void sendException(RemoteCommand request, Throwable ex) {
+		public void sendException(RemotingCommand request, Throwable ex) {
 			log.error("[sendException]发送报文失败：{}，cause：{}", request.toJSON(), ex);
 		}
 
 		@Override
-		public void beforeHandler(RemoteCommand response) {
+		public void beforeHandler(RemotingCommand response) {
 			log.info("beforeHandler - response：{}", response.toJSON());
 		}
 
 		@Override
-		public void afterHandler(RemoteCommand response) {
+		public void afterHandler(RemotingCommand response) {
 			log.info("afterHandler - response：{}", response.toJSON());
 		}
 
 	}
 
-	void beforeSend(RemoteCommand request);
+	void beforeSend(RemotingCommand request);
 
-	void afterSend(RemoteCommand request);
+	void afterSend(RemotingCommand request);
 
-	void sendComplete(RemoteCommand request);
+	void sendComplete(RemotingCommand request);
 
-	void sendException(RemoteCommand request, Throwable ex);
+	void sendException(RemotingCommand request, Throwable ex);
 
-	void beforeHandler(RemoteCommand response);
+	void beforeHandler(RemotingCommand response);
 
-	void afterHandler(RemoteCommand response);
+	void afterHandler(RemotingCommand response);
 
 }

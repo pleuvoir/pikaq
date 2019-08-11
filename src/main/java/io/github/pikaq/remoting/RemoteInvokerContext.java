@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting;
 
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class RemoteInvokerContext {
 
 	private ChannelHandlerContext ctx;
-	private RemoteCommand request;
+	private RemotingCommand request;
 
 }

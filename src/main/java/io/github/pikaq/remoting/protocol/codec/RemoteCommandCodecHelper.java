@@ -1,7 +1,7 @@
 package io.github.pikaq.remoting.protocol.codec;
 
 import io.github.pikaq.common.util.SingletonFactoy;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.serialization.SerializationFactory;
 import io.github.pikaq.serialization.Serializer;
@@ -21,7 +21,7 @@ public class RemoteCommandCodecHelper {
     /**
      * 编码
      */
-	public static void encode(ByteBuf buffer, RemoteCommand command) {
+	public static void encode(ByteBuf buffer, RemotingCommand command) {
 		Serializer defaultImpl = SerializationFactory.defaultImpl();
         final byte[] bytes = defaultImpl.serialize(command);
         // 魔数
@@ -39,7 +39,7 @@ public class RemoteCommandCodecHelper {
 	/**
 	 * 解码
 	 */
-    public static RemoteCommand decode(ByteBuf byteBuf) {
+    public static RemotingCommand decode(ByteBuf byteBuf) {
         //跳过前4个字节（一个Int）的魔数
         byteBuf.skipBytes(4);
         //指令
@@ -52,7 +52,7 @@ public class RemoteCommandCodecHelper {
         byte[] bytes = new byte[length];
         byteBuf.readBytes(bytes);
         //获取指令对应的实体类
-		Class<? extends RemoteCommand> cmdClazz = SingletonFactoy.get(RemoteCommandFactory.class).fromSymbol(symbol);
+		Class<? extends RemotingCommand> cmdClazz = SingletonFactoy.get(RemoteCommandFactory.class).fromSymbol(symbol);
         //获取序列化器进行反序列化
         final Serializer serializer = SerializationFactory.get(algorithmCode);
         return  serializer.deserialize(bytes,cmdClazz);

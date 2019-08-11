@@ -8,7 +8,7 @@ import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.RemoteInvokerContext;
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -26,13 +26,13 @@ public class DispatcherActor extends UntypedActor {
 
 		RemoteInvokerContext invokerContext = (RemoteInvokerContext) msg;
 
-		RemoteCommand request = invokerContext.getRequest();
+		RemotingCommand request = invokerContext.getRequest();
 		ChannelHandlerContext ctx = invokerContext.getCtx();
 		
-		RemoteCommandProcessor<RemoteCommand, RemoteCommand> processor = SingletonFactoy.get(RemoteCommandFactory.class)
+		RemoteCommandProcessor<RemotingCommand, RemotingCommand> processor = SingletonFactoy.get(RemoteCommandFactory.class)
 				.select(request.getSymbol());
 		
-		RemoteCommand response = null;
+		RemotingCommand response = null;
 
 		if (processor == null) {
 			response = CarrierCommand.buildString(true, "server empty processor", "OK");
@@ -41,7 +41,7 @@ public class DispatcherActor extends UntypedActor {
 			assert response != null;
 		}
 
-		response.setId(request.getId());
+		response.setMessageId(request.getMessageId());
 
 		getSender().tell(response, getSelf());
 	}

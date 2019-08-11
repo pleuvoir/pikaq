@@ -7,7 +7,7 @@ import io.github.pikaq.extension.SPI;
  * @author pleuvoir
  *
  */
-@SPI("io.github.pikaq.serialization.fastjson.FastJSONSerializerImpl")
+@SPI("io.github.pikaq.serialization.fastjson.FastjsonSerializer")
 public interface Serializer {
 
 	/**

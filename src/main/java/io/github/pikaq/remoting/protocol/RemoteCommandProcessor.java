@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting.protocol;
 
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @param <REQ>
  * @param <RSP>
  */
-public interface RemoteCommandProcessor<REQ extends RemoteCommand, RSP extends RemoteCommand> {
+public interface RemoteCommandProcessor<REQ extends RemotingCommand, RSP extends RemotingCommand> {
 
 	RSP handler(ChannelHandlerContext ctx, REQ request);
 }

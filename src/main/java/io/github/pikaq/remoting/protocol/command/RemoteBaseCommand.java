@@ -8,11 +8,11 @@ import io.github.pikaq.common.util.Generator;
  * @author pleuvoir
  *
  */
-public abstract class RemoteBaseCommand extends RemoteCommand {
+public abstract class RemoteBaseCommand extends RemotingCommand {
 
 	public RemoteBaseCommand() {
 		super();
-		id = Generator.nextUUID();
+		messageId = Generator.nextUUID();
 		commandCodeType = commandCodeType();
 		symbol = symbol();
 		responsible = responsible();

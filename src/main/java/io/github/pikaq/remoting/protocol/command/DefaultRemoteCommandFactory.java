@@ -20,25 +20,25 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultRemoteCommandFactory.class);
 
-	private static final ConcurrentMap<Integer, Class<? extends RemoteCommand>> MAPPINGS = Maps.newConcurrentMap();
+	private static final ConcurrentMap<Integer, Class<? extends RemotingCommand>> MAPPINGS = Maps.newConcurrentMap();
 
 	private static final ConcurrentMap<Integer, RemoteCommandProcessor> DISPATCHER = Maps.newConcurrentMap();
 
 	@Override
 	public void load(String scannerPath) {
 		Reflections packageInfo = new Reflections(scannerPath);
-		Set<Class<? extends RemoteCommand>> subs = packageInfo.getSubTypesOf(RemoteCommand.class);
+		Set<Class<? extends RemotingCommand>> subs = packageInfo.getSubTypesOf(RemotingCommand.class);
 		if (subs.isEmpty()) {
 			throw new RemoteCommandException("加载包错误，未找到命令实现，scannerPath=" + scannerPath);
 		}
-		for (Class<? extends RemoteCommand> remoteCommandClazz : subs) {
+		for (Class<? extends RemotingCommand> remoteCommandClazz : subs) {
 			if (Modifier.isAbstract(remoteCommandClazz.getModifiers())) {
 				continue;
 			}
 			try {
-				RemoteCommand remoteCommandInstance = remoteCommandClazz.newInstance();
+				RemotingCommand remoteCommandInstance = remoteCommandClazz.newInstance();
 				int symbol = remoteCommandInstance.getSymbol();
-				Class<? extends RemoteCommand> prev = MAPPINGS.putIfAbsent(symbol, remoteCommandClazz);
+				Class<? extends RemotingCommand> prev = MAPPINGS.putIfAbsent(symbol, remoteCommandClazz);
 				if (prev != null) {
 					LOG.warn("远程命令[{}][{}]:{} 已初始化过，不再重复加载，请检查扫描包", remoteCommandInstance.getCommandCodeType(), symbol,
 							remoteCommandInstance.getClass().getCanonicalName());
@@ -55,10 +55,10 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public RemoteCommand newRemoteCommand(CommandCode code) {
-		Class<? extends RemoteCommand> remoteCommandClazz = MAPPINGS.get(code.getCode());
+	public RemotingCommand newRemoteCommand(CommandCode code) {
+		Class<? extends RemotingCommand> remoteCommandClazz = MAPPINGS.get(code.getCode());
 		try {
-			RemoteCommand cmd = remoteCommandClazz.newInstance();
+			RemotingCommand cmd = remoteCommandClazz.newInstance();
 			return cmd;
 		} catch (InstantiationException | IllegalAccessException e) {
 			LOG.error("实例化远程命令失败，", e);
@@ -67,10 +67,10 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public Class<? extends RemoteCommand> fromSymbol(int symbol) {
-		Iterator<Entry<Integer, Class<? extends RemoteCommand>>> iterator = MAPPINGS.entrySet().iterator();
+	public Class<? extends RemotingCommand> fromSymbol(int symbol) {
+		Iterator<Entry<Integer, Class<? extends RemotingCommand>>> iterator = MAPPINGS.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry<Integer, java.lang.Class<? extends RemoteCommand>> entry = (Map.Entry<Integer, java.lang.Class<? extends RemoteCommand>>) iterator
+			Map.Entry<Integer, java.lang.Class<? extends RemotingCommand>> entry = (Map.Entry<Integer, java.lang.Class<? extends RemotingCommand>>) iterator
 					.next();
 			if (entry.getKey() == symbol) {
 				return entry.getValue();
@@ -81,7 +81,7 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public RemoteCommandProcessor<RemoteCommand, RemoteCommand> select(int symbol) {
+	public RemoteCommandProcessor<RemotingCommand, RemotingCommand> select(int symbol) {
 		return DISPATCHER.get(symbol);
 	}
 

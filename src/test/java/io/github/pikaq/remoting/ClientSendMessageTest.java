@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import io.github.pikaq.remoting.client.ClientConfig;
 import io.github.pikaq.remoting.client.DefaultClient;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 
 public class ClientSendMessageTest {
 
@@ -25,7 +25,7 @@ public class ClientSendMessageTest {
 		cmd.setResponsible(true); //设置为需要响应，否则收不到异步通知
 		while (true) {
 			System.out.println("send.");
-			RemoteCommand rsp = client.sendRequest(cmd);
+			RemotingCommand rsp = client.sendRequest(cmd);
 			System.out.println("同步响应 - " + rsp.toJSON());
 			TimeUnit.SECONDS.sleep(1);
 		}

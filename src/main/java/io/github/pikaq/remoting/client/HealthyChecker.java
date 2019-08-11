@@ -9,7 +9,7 @@ import io.github.pikaq.common.annotation.ClientSide;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.protocol.command.CommandCode;
 import io.github.pikaq.remoting.protocol.command.PongCommand;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -51,7 +51,7 @@ public class HealthyChecker extends SimpleChannelInboundHandler<PongCommand> {
 		ClientConfig clientConfig = client.getClientConfig();
 		ctx.executor().schedule(() -> {
 			if (ctx.channel().isActive()) {
-				RemoteCommand request = SingletonFactoy.get(RemoteCommandFactory.class).newRemoteCommand(CommandCode.HEART_BEAT_REQ);
+				RemotingCommand request = SingletonFactoy.get(RemoteCommandFactory.class).newRemoteCommand(CommandCode.HEART_BEAT_REQ);
 				ctx.writeAndFlush(request);
 				LOG.debug("[client]发送心跳报文到对端。心跳间隔{}s，request={}", clientConfig.getHeartbeatIntervalSeconds(),request.toJSON());
 				this.sendHeartPacketPeriodicity(ctx);

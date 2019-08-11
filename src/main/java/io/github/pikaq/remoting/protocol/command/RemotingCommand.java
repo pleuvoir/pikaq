@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import io.github.pikaq.common.util.ToJSON;
+import io.github.pikaq.remoting.RemotingCommandType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,14 +14,14 @@ import lombok.Setter;
  * @author pleuvoir
  *
  */
-public class RemoteCommand implements ToJSON {
+public class RemotingCommand implements ToJSON {
 	
-	protected RemoteCommand(){}
+	protected RemotingCommand(){}
 
 	//请求唯一id，client和server共享
 	@Getter
 	@Setter
-	protected String id;
+	protected String messageId;
 	
 	//指令，用于匹配远程命令
 	@Getter
@@ -31,6 +32,14 @@ public class RemoteCommand implements ToJSON {
 	@Getter
 	@Setter
 	protected CommandCodeType commandCodeType;
+	
+	/**
+	 * 命令类型  0 请求 1响应
+	 */
+	@Getter
+	@Setter
+	private RemotingCommandType commandType;
+	
 	
 	//是否需要响应
 	@Getter

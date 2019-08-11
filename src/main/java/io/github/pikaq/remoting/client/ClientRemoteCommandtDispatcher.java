@@ -9,7 +9,7 @@ import io.github.pikaq.common.annotation.ClientSide;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.Pendings;
 import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
-import io.github.pikaq.remoting.protocol.command.RemoteCommand;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,14 +26,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 @ClientSide
 @ChannelHandler.Sharable
-public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<RemoteCommand> {
+public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<RemotingCommand> {
 
 	
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, RemoteCommand response) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, RemotingCommand response) throws Exception {
 		
 		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		
@@ -47,7 +47,7 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 			processor.handler(ctx, response);
 		} else {
 			// 未找到处理器，直接标记为完成
-			CompletableFuture<RemoteCommand> prevRequest = Pendings.remove(response.getId());
+			CompletableFuture<RemotingCommand> prevRequest = Pendings.remove(response.getMessageId());
 			if (prevRequest != null) {
 				prevRequest.complete(response);
 			}
