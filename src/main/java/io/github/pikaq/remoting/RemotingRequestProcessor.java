@@ -8,7 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author pleuvoir
  *
  */
-public interface RemoteRequestProcessor {
+public interface RemotingRequestProcessor {
 	
 	RemotingCommand handler(ChannelHandlerContext ctx, RemotingCommand request);
 	

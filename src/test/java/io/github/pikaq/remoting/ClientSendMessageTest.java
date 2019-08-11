@@ -10,7 +10,7 @@ import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 public class ClientSendMessageTest {
 
 	// junit会退出去 大坑
-	public static void main(String[] args) throws RemoteClientException, RemoteSendException, InterruptedException {
+	public static void main(String[] args) throws RemoteClientException, RemotingSendRequestException, InterruptedException {
 		ClientConfig clientConfig = ClientConfig.create("127.0.0.1", 8443)
 				.connectTimeoutMillis(5000)
 				.startFailReconnectTimes(3)

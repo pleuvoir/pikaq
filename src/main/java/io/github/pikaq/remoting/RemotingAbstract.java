@@ -41,7 +41,7 @@ public class RemotingAbstract {
 	 */
 	protected final ConcurrentHashMap<String /* messageId */, RemotingFuture> pendings = new ConcurrentHashMap<>(256);
 
-	protected final ConcurrentHashMap<Integer /* symbol */, RemoteRequestProcessor> processorTable = new ConcurrentHashMap<>(
+	protected final ConcurrentHashMap<Integer /* symbol */, RemotingRequestProcessor> processorTable = new ConcurrentHashMap<>(
 			16);
 
 	/**
@@ -83,7 +83,7 @@ public class RemotingAbstract {
 	 */
 	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
 		// 获取请求处理器
-		RemoteRequestProcessor processor = this.processorTable.get(request.getSymbol());
+		RemotingRequestProcessor processor = this.processorTable.get(request.getSymbol());
 		if (processor == null) {
 			// 如果处理器为空则返回一条server empty processor消息
 			RemotingCommand emptyResponse = CarrierCommand.buildString(false,
@@ -191,7 +191,7 @@ public class RemotingAbstract {
 					remotingFuture.setSendRequestOK(false);
 					remotingFuture.setCause(f.cause());
 					remotingFuture.setResponseCommand(null);
-					remotingFuture.onRequestException();
+					RemotingAbstract.this.callbackExecutor.submit(() -> remotingFuture.onRequestException());
 					log.warn("send a request command to channel <" + channel.remoteAddress() + "> failed.");
 				}
 				

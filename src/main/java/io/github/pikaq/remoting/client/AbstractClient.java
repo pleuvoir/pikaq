@@ -16,8 +16,8 @@ import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.remoting.Pendings;
 import io.github.pikaq.remoting.RemoteClientException;
 import io.github.pikaq.remoting.RemoteExceptionTranslator;
-import io.github.pikaq.remoting.RemoteSendException;
 import io.github.pikaq.remoting.RemotingContext;
+import io.github.pikaq.remoting.RemotingSendRequestException;
 import io.github.pikaq.remoting.RunningState;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.remoting.protocol.command.RemotingCommand;
@@ -150,7 +150,7 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public void sendOneWay(RemotingCommand request) throws RemoteSendException {
+	public void sendOneWay(RemotingCommand request) throws RemotingSendRequestException {
 		checkRunningState();
 		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		commandLifeCycleListener.beforeSend(request);
@@ -159,7 +159,7 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public RemotingCommand sendRequest(RemotingCommand request) throws RemoteSendException {
+	public RemotingCommand sendRequest(RemotingCommand request) throws RemotingSendRequestException {
 		CompletableFuture<RemotingCommand> promise = this.sendAsyncRequest(request);
 		RemotingCommand result = null;
 		try {
@@ -171,7 +171,7 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public CompletableFuture<RemotingCommand> sendAsyncRequest(RemotingCommand request) throws RemoteSendException {
+	public CompletableFuture<RemotingCommand> sendAsyncRequest(RemotingCommand request) throws RemotingSendRequestException {
 		
 		checkRunningState();
 		
@@ -205,13 +205,13 @@ public abstract class AbstractClient implements Client {
 	}
 	
 	
-	private void checkRunningState() throws RemoteSendException{
+	private void checkRunningState() throws RemotingSendRequestException{
 		if (!runningState.isRunning()) {
 			logger.debug("客户端未连接，请连接后再发送。");
-			throw new RemoteSendException("客户端未连接，请连接后再发送。");
+			throw new RemotingSendRequestException("客户端未连接，请连接后再发送。");
 		}
 		if (!connnectManager.validate(channel)) {
-			throw new RemoteSendException("连接通道不可用");
+			throw new RemotingSendRequestException("连接通道不可用");
 		}
 	}
 

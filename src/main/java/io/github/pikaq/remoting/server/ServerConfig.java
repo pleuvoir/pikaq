@@ -6,6 +6,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ServerConfig {
+	
+
+	public ServerConfig(int listeningPort) {
+		this.listeningPort = listeningPort;
+	}
+
+	public ServerConfig() {
+		super();
+	}
 
 	/**
 	 * Socket连接缓冲队列大小，默认为1024

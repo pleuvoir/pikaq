@@ -15,8 +15,11 @@ import com.google.common.base.Stopwatch;
 import io.github.pikaq.common.util.PortUtils;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
+import io.github.pikaq.remoting.RemotingAbstract;
 import io.github.pikaq.remoting.RemotingContext;
+import io.github.pikaq.remoting.RemotingRequestProcessor;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
+import io.github.pikaq.remoting.protocol.command.CommandCode;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -28,40 +31,39 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-public abstract class AbstractServer implements Server {
+public abstract class AbstractServer extends RemotingAbstract implements RemotingServer {
 
 	protected List<Thread> shutdownHooks = new ArrayList<>();
 	protected EventLoopGroup bossGroup;
 	protected EventLoopGroup workGroup;
 	private ServerConfig serverConfig;
+
 	
-	
-	AbstractServer() {
+	AbstractServer(){
 		Initializer.init();
+		//registerProcessor(CommandCode.HEART_BEAT_REQ.getCode(), new PingCommandProcessor());
 	}
+
 
 	@Override
 	public void start() {
-		
+
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		try {
-			
+
 			validate(serverConfig);
-			
+
 			logger.info("[{}]开始启动", getServerName());
 
 			final ServerBootstrap bootstrap = new ServerBootstrap();
 			this.bossGroup = new NioEventLoopGroup();
 			this.workGroup = new NioEventLoopGroup();
 
-			bootstrap.group(bossGroup, workGroup)
-					.localAddress(new InetSocketAddress(serverConfig.getListeningPort()))
-					.channel(NioServerSocketChannel.class)
-					.option(ChannelOption.SO_BACKLOG, serverConfig.getSoBacklog())
+			bootstrap.group(bossGroup, workGroup).localAddress(new InetSocketAddress(serverConfig.getListeningPort()))
+					.channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, serverConfig.getSoBacklog())
 					.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 					.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-					.childOption(ChannelOption.SO_KEEPALIVE, true)
-					.childOption(ChannelOption.TCP_NODELAY, true)
+					.childOption(ChannelOption.SO_KEEPALIVE, true).childOption(ChannelOption.TCP_NODELAY, true)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel ch) throws Exception {
@@ -73,16 +75,14 @@ public abstract class AbstractServer implements Server {
 					});
 
 			ChannelFuture f = bootstrap.bind().sync();
-			
-			RemotingContext remotingContext = RemotingContext.create()
-					.channel(f.channel())
-					.serverConfig(serverConfig)
+
+			RemotingContext remotingContext = RemotingContext.create().channel(f.channel()).serverConfig(serverConfig)
 					.build();
-					
-					doStart(remotingContext);
-					logger.info("[{}]服务已启动，监听端口：{}", getServerName(), serverConfig.getListeningPort());
-					
-			//最后同步阻塞线程不退出
+
+			doStart(remotingContext);
+			logger.info("[{}]服务已启动，监听端口：{}", getServerName(), serverConfig.getListeningPort());
+
+			// 最后同步阻塞线程不退出
 			f.channel().closeFuture().sync();
 		} catch (Throwable e) {
 			logger.error("[{}]服务启动失败", getServerName(), e);
@@ -121,7 +121,6 @@ public abstract class AbstractServer implements Server {
 		Preconditions.checkArgument(PortUtils.checkPortAvailable(listeningPort), listeningPort + "端口被占用，请重新配置。");
 	}
 
-
 	@Override
 	public void registerShutdownHooks(Thread... hooks) {
 		List<Thread> h = Arrays.asList(hooks);
@@ -137,6 +136,16 @@ public abstract class AbstractServer implements Server {
 	@Override
 	public ServerConfig getServerConfig() {
 		return serverConfig;
+	}
+	
+	@Override
+	public void registerProcessor(int symbol, RemotingRequestProcessor processor) {
+		this.processorTable.put(symbol, processor);
+	}
+
+	@Override
+	public RemotingRequestProcessor getProcessor(int symbol) {
+		return processorTable.get(symbol);
 	}
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
