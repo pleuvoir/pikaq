@@ -4,6 +4,7 @@ import org.junit.Assert;
 
 import io.github.pikaq.remoting.client.ClientConfig;
 import io.github.pikaq.remoting.client.DefaultClient;
+import io.github.pikaq.remoting.exception.RemoteClientException;
 
 public class DefaultClientTest {
 

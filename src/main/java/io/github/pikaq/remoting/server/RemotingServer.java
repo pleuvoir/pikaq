@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting.server;
 
-import io.github.pikaq.remoting.RemotingRequestProcessor;
+import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
 
 public interface RemotingServer {
 

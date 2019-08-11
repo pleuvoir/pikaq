@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import akka.actor.UntypedActor;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.RemoteInvokerContext;
-import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
+import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
-import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
 public class DispatcherActor extends UntypedActor {
@@ -19,7 +19,7 @@ public class DispatcherActor extends UntypedActor {
 	public DispatcherActor() {
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 		logger.info("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -29,8 +29,8 @@ public class DispatcherActor extends UntypedActor {
 		RemotingCommand request = invokerContext.getRequest();
 		ChannelHandlerContext ctx = invokerContext.getCtx();
 		
-		RemoteCommandProcessor<RemotingCommand, RemotingCommand> processor = SingletonFactoy.get(RemoteCommandFactory.class)
-				.select(request.getSymbol());
+		 RemotingRequestProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class)
+				.select(request.getRequestCode());
 		
 		RemotingCommand response = null;
 

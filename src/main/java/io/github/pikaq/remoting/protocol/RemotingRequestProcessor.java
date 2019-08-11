@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @param <REQ>
  * @param <RSP>
  */
-public interface RemoteCommandProcessor<REQ extends RemotingCommand, RSP extends RemotingCommand> {
+public interface RemotingRequestProcessor<REQ extends RemotingCommand, RSP extends RemotingCommand> {
 
 	RSP handler(ChannelHandlerContext ctx, REQ request);
 }

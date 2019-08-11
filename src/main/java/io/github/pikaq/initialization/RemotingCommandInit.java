@@ -5,7 +5,7 @@ import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initable;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
 
-public class RemoteCommandInit implements Initable {
+public class RemotingCommandInit implements Initable {
 
 	public static final int ORDER = HIGHEST_LEVEL - 2;
 
@@ -16,9 +16,9 @@ public class RemoteCommandInit implements Initable {
 
 	@Override
 	public void init() {
-		RemoteCommandFactory remoteCommandFactory = SingletonFactoy.get(RemoteCommandFactory.class);
-		// 扫描加载系统预制远程命令
-		remoteCommandFactory.load(PikaqConst.COMMAND_SCANNER_PATH);
+		RemoteCommandFactory factory = SingletonFactoy.get(RemoteCommandFactory.class);
+		// 加载所有jar中远程命令
+		factory.load(PikaqConst.ALL_SCANNER_PATH);
 	}
 
 }

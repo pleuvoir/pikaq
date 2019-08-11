@@ -1,6 +1,8 @@
-package io.github.pikaq.remoting;
+package io.github.pikaq.remoting.exception;
 
 import java.util.concurrent.TimeoutException;
+
+import io.github.pikaq.remoting.exception.RemotingSendRequestException;
 
 public final class RemoteExceptionTranslator {
 

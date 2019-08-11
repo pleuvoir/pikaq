@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import io.github.pikaq.common.annotation.ClientSide;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.Pendings;
-import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
-import io.github.pikaq.remoting.protocol.command.RemotingCommand;
+import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
 import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -39,7 +39,7 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 		
 		commandLifeCycleListener.beforeHandler(response);
 		
-		RemoteCommandProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class).select(response.getSymbol());
+		 RemotingRequestProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class).select(response.getRequestCode());
 
 		if (processor != null) {
 			logger.debug("ClientRemoteCommandtDispatcher received {}，handler={}", response.toJSON(),

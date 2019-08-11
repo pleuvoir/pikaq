@@ -13,17 +13,14 @@ public abstract class RemoteBaseCommand extends RemotingCommand {
 	public RemoteBaseCommand() {
 		super();
 		messageId = Generator.nextUUID();
-		commandCodeType = commandCodeType();
-		symbol = symbol();
+		requestCode = requestCode();
 		responsible = responsible();
 	}
-
-	public abstract CommandCodeType commandCodeType();
 
 	/**
 	 * 是否需要对端响应
 	 */
 	public abstract boolean responsible();
 
-	public abstract int symbol();
+	public abstract int requestCode();
 }

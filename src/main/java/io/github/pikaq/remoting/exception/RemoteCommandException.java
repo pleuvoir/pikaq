@@ -1,4 +1,4 @@
-package io.github.pikaq.remoting.protocol.command;
+package io.github.pikaq.remoting.exception;
 
 public class RemoteCommandException extends RuntimeException {
 

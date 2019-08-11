@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-import io.github.pikaq.remoting.protocol.RemoteCommandProcessor;
+import io.github.pikaq.remoting.exception.RemoteCommandException;
+import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
 
 @SuppressWarnings("all")
 public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
@@ -22,7 +23,7 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 
 	private static final ConcurrentMap<Integer, Class<? extends RemotingCommand>> MAPPINGS = Maps.newConcurrentMap();
 
-	private static final ConcurrentMap<Integer, RemoteCommandProcessor> DISPATCHER = Maps.newConcurrentMap();
+	private static final ConcurrentMap<Integer, RemotingRequestProcessor> DISPATCHER = Maps.newConcurrentMap();
 
 	@Override
 	public void load(String scannerPath) {
@@ -37,14 +38,12 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 			}
 			try {
 				RemotingCommand remoteCommandInstance = remoteCommandClazz.newInstance();
-				int symbol = remoteCommandInstance.getSymbol();
-				Class<? extends RemotingCommand> prev = MAPPINGS.putIfAbsent(symbol, remoteCommandClazz);
+				int requestCode = remoteCommandInstance.getRequestCode();
+				Class<? extends RemotingCommand> prev = MAPPINGS.putIfAbsent(requestCode, remoteCommandClazz);
 				if (prev != null) {
-					LOG.warn("远程命令[{}][{}]:{} 已初始化过，不再重复加载，请检查扫描包", remoteCommandInstance.getCommandCodeType(), symbol,
-							remoteCommandInstance.getClass().getCanonicalName());
+					LOG.warn("远程命令[{}]:{} 已初始化过，不再重复加载，请检查扫描包", requestCode, remoteCommandInstance.getClass().getCanonicalName());
 				} else {
-					LOG.info("加载远程命令[{}][{}]:{}", remoteCommandInstance.getCommandCodeType(), symbol,
-							remoteCommandInstance.getClass().getCanonicalName());
+					LOG.info("加载远程命令[{}]:{}", requestCode, remoteCommandInstance.getClass().getCanonicalName());
 				}
 
 			} catch (Throwable e) {
@@ -55,8 +54,8 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public RemotingCommand newRemoteCommand(CommandCode code) {
-		Class<? extends RemotingCommand> remoteCommandClazz = MAPPINGS.get(code.getCode());
+	public RemotingCommand newRemoteCommand(int symbol) {
+		Class<? extends RemotingCommand> remoteCommandClazz = MAPPINGS.get(symbol);
 		try {
 			RemotingCommand cmd = remoteCommandClazz.newInstance();
 			return cmd;
@@ -67,26 +66,26 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 	}
 
 	@Override
-	public Class<? extends RemotingCommand> fromSymbol(int symbol) {
+	public Class<? extends RemotingCommand> fromRequestCode(int requestCode) {
 		Iterator<Entry<Integer, Class<? extends RemotingCommand>>> iterator = MAPPINGS.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<Integer, java.lang.Class<? extends RemotingCommand>> entry = (Map.Entry<Integer, java.lang.Class<? extends RemotingCommand>>) iterator
 					.next();
-			if (entry.getKey() == symbol) {
+			if (entry.getKey() == requestCode) {
 				return entry.getValue();
 			}
 		}
-		LOG.error(symbol + " :target CommandCode not found");
-		throw new RemoteCommandException(symbol + " :target CommandCode not found");
+		LOG.error(requestCode + " :target requestCode not found");
+		throw new RemoteCommandException(requestCode + " :target requestCode not found");
 	}
 
 	@Override
-	public RemoteCommandProcessor<RemotingCommand, RemotingCommand> select(int symbol) {
+	public RemotingRequestProcessor<RemotingCommand, RemotingCommand> select(int symbol) {
 		return DISPATCHER.get(symbol);
 	}
 
 	@Override
-	public void registerHandler(int symbol, RemoteCommandProcessor handler) {
+	public void registerHandler(int symbol, RemotingRequestProcessor handler) {
 		DISPATCHER.putIfAbsent(symbol, handler);
 	}
 

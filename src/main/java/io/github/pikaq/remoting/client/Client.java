@@ -2,9 +2,9 @@ package io.github.pikaq.remoting.client;
 
 import java.util.concurrent.CompletableFuture;
 
-import io.github.pikaq.remoting.RemoteClientException;
-import io.github.pikaq.remoting.RemotingSendRequestException;
 import io.github.pikaq.remoting.RunningState;
+import io.github.pikaq.remoting.exception.RemoteClientException;
+import io.github.pikaq.remoting.exception.RemotingSendRequestException;
 import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 
 public interface Client {

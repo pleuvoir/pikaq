@@ -8,13 +8,8 @@ package io.github.pikaq.remoting.protocol.command;
 public class PingCommand extends RemoteBaseCommand {
 
 	@Override
-	public int symbol() {
+	public int requestCode() {
 		return CommandCode.HEART_BEAT_REQ.getCode();
-	}
-
-	@Override
-	public CommandCodeType commandCodeType() {
-		return CommandCodeType.SYSTEM;
 	}
 
 	@Override

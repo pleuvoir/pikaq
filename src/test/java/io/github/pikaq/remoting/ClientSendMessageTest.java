@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.github.pikaq.remoting.client.ClientConfig;
 import io.github.pikaq.remoting.client.DefaultClient;
+import io.github.pikaq.remoting.exception.RemoteClientException;
+import io.github.pikaq.remoting.exception.RemotingSendRequestException;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
 import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 

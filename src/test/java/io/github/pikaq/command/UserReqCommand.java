@@ -1,7 +1,6 @@
 
 package io.github.pikaq.command;
 
-import io.github.pikaq.remoting.protocol.command.CommandCodeType;
 import io.github.pikaq.remoting.protocol.command.RemoteBaseCommand;
 
 public class UserReqCommand extends RemoteBaseCommand {
@@ -18,14 +17,10 @@ public class UserReqCommand extends RemoteBaseCommand {
 	}
 
 	@Override
-	public int symbol() {
+	public int requestCode() {
 		return 99;
 	}
 
-	@Override
-	public CommandCodeType commandCodeType() {
-		return CommandCodeType.USER;
-	}
 
 	@Override
 	public boolean responsible() {

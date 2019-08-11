@@ -1,4 +1,4 @@
-package io.github.pikaq.remoting;
+package io.github.pikaq.remoting.exception;
 
 public class RemotingTimeoutException extends Exception {
 

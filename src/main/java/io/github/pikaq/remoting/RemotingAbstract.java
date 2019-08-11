@@ -11,6 +11,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
+import io.github.pikaq.remoting.exception.RemotingSendRequestException;
+import io.github.pikaq.remoting.exception.RemotingTimeoutException;
+import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
 import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.channel.Channel;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@SuppressWarnings("all")
 public class RemotingAbstract {
 
 	/**
@@ -83,11 +87,11 @@ public class RemotingAbstract {
 	 */
 	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
 		// 获取请求处理器
-		RemotingRequestProcessor processor = this.processorTable.get(request.getSymbol());
+		RemotingRequestProcessor processor = this.processorTable.get(request.getRequestCode());
 		if (processor == null) {
 			// 如果处理器为空则返回一条server empty processor消息
 			RemotingCommand emptyResponse = CarrierCommand.buildString(false,
-					"empty processor, symbol=" + request.getSymbol(), null);
+					"empty processor, requestCode=" + request.getRequestCode(), null);
 			ctx.writeAndFlush(emptyResponse);
 			return;
 		}
@@ -95,7 +99,7 @@ public class RemotingAbstract {
 		// 处理请求
 		final RemotingCommand response = processor.handler(ctx, request);
 		if (response == null) {
-			log.warn("processRequestCommand handler request, but return null. symbol={}", request.getSymbol());
+			log.warn("processRequestCommand handler request, but return null. requestCode={}", request.getRequestCode());
 			return;
 		}
 

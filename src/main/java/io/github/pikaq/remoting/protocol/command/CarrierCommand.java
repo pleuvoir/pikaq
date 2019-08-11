@@ -22,14 +22,10 @@ public class CarrierCommand<T> extends RemoteBaseCommand {
 	private T payload;
 
 	@Override
-	public int symbol() {
+	public int requestCode() {
 		return CommandCode.CARRIER.getCode();
 	}
 
-	@Override
-	public CommandCodeType commandCodeType() {
-		return CommandCodeType.SYSTEM;
-	}
 
 	public static CarrierCommand<String> buildString(boolean success, String message, String payload) {
 		return CarrierCommand.<String>builder()
