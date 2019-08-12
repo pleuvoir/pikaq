@@ -35,9 +35,7 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, RemotingCommand response) throws Exception {
 		
-		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
 		
-		commandLifeCycleListener.beforeHandler(response);
 		
 		 RemotingRequestProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class).select(response.getRequestCode());
 
@@ -55,7 +53,6 @@ public class ClientRemoteCommandtDispatcher extends SimpleChannelInboundHandler<
 					prevRequest);
 		}
 		
-		commandLifeCycleListener.afterHandler(response);
 	}
 
 }

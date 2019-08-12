@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
+import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.remoting.exception.RemotingSendRequestException;
 import io.github.pikaq.remoting.exception.RemotingTimeoutException;
 import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
@@ -43,10 +44,7 @@ public class RemotingAbstract {
 	 * 保存正在处理的消息请求<br>
 	 * 因为netty是以异步发送，所以发送后接受到的响应通过此寻找之前的对应关系
 	 */
-	protected final ConcurrentHashMap<String /* messageId */, RemotingFuture> pendings = new ConcurrentHashMap<>(256);
-
-	protected final ConcurrentHashMap<Integer /* symbol */, RemotingRequestProcessor> processorTable = new ConcurrentHashMap<>(
-			16);
+	private final ConcurrentHashMap<String /* messageId */, RemotingFuture> pendings = new ConcurrentHashMap<>(256);
 
 	/**
 	 * 接收到响应消息异步回调线程池
@@ -87,7 +85,7 @@ public class RemotingAbstract {
 	 */
 	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
 		// 获取请求处理器
-		RemotingRequestProcessor processor = this.processorTable.get(request.getRequestCode());
+		RemotingRequestProcessor processor = SingletonFactoy.get(RemotingRequestProcessor.class);
 		if (processor == null) {
 			// 如果处理器为空则返回一条server empty processor消息
 			RemotingCommand emptyResponse = CarrierCommand.buildString(false,
@@ -99,7 +97,8 @@ public class RemotingAbstract {
 		// 处理请求
 		final RemotingCommand response = processor.handler(ctx, request);
 		if (response == null) {
-			log.warn("processRequestCommand handler request, but return null. requestCode={}", request.getRequestCode());
+			log.warn("processRequestCommand handler request, but return null. requestCode={}",
+					request.getRequestCode());
 			return;
 		}
 
@@ -138,7 +137,7 @@ public class RemotingAbstract {
 	/**
 	 * 发送同步请求
 	 */
-	public RemotingCommand invokeSync(final Channel channel, final RemotingCommand request, final long timeoutMillis)
+	protected RemotingCommand invokeSyncImpl(final Channel channel, final RemotingCommand request, final long timeoutMillis)
 			throws RemotingTimeoutException, RemotingSendRequestException {
 		String messageId = request.getMessageId();
 		final RemotingFuture remotingFuture = new RemotingFuture(messageId, timeoutMillis, null);
@@ -171,12 +170,11 @@ public class RemotingAbstract {
 		return response;
 	}
 
-	
 	/**
 	 * 发送异步消息
 	 */
-	public void invokeAsyncImpl(final Channel channel, final RemotingCommand request,
-			final InvokeCallback invokeCallback) {
+	protected void invokeAsyncImpl(final Channel channel, final RemotingCommand request,
+			final InvokeCallback invokeCallback) throws RemotingSendRequestException {
 		final String messageId = request.getMessageId();
 		final RemotingFuture remotingFuture = new RemotingFuture(messageId, null, invokeCallback);
 		pendings.put(messageId, remotingFuture);
@@ -187,8 +185,8 @@ public class RemotingAbstract {
 					// 如果该消息是可回复的会由响应处理清除pendings，不可回复会由定时任务清除过期请求
 					remotingFuture.setSendRequestOK(true);
 					return;
-				}	
-				//异常直接移除即可
+				}
+				// 异常直接移除即可
 				pendings.remove(messageId);
 				// 异常回调
 				if (invokeCallback != null) {
@@ -198,7 +196,7 @@ public class RemotingAbstract {
 					RemotingAbstract.this.callbackExecutor.submit(() -> remotingFuture.onRequestException());
 					log.warn("send a request command to channel <" + channel.remoteAddress() + "> failed.");
 				}
-				
+
 			}
 		});
 	}
@@ -206,7 +204,7 @@ public class RemotingAbstract {
 	/**
 	 * 发送Oneway请求
 	 */
-	public void invokeOneway(final Channel channel, final RemotingCommand request) {
+	protected void invokeOnewayImpl(final Channel channel, final RemotingCommand request) throws RemotingSendRequestException {
 		// 无需响应
 		request.setResponsible(false);
 		channel.writeAndFlush(request).addListener(new ChannelFutureListener() {

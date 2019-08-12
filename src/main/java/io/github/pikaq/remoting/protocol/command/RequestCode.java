@@ -1,6 +1,6 @@
 package io.github.pikaq.remoting.protocol.command;
 
-public enum CommandCode {
+public enum RequestCode {
 
 	CARRIER(0),
 	
@@ -12,7 +12,7 @@ public enum CommandCode {
 
 	;
 	
-	private CommandCode(int code) {
+	private RequestCode(int code) {
 		this.code = code;
 	}
 
@@ -34,14 +34,14 @@ public enum CommandCode {
 		return getCode() > 0;
 	}
 
-	public CommandCode toResponse() {
+	public RequestCode toResponse() {
 		String name = this.name();
 		String rspName = name.substring(0, name.length() - 3).concat("RSP");
 		return toEnum(rspName);
 	}
 
-	public static CommandCode toEnum(String name) {
-		for (CommandCode command : values()) {
+	public static RequestCode toEnum(String name) {
+		for (RequestCode command : values()) {
 			if (command.name().equals(name)) {
 				return command;
 			}
@@ -49,8 +49,8 @@ public enum CommandCode {
 		return null;
 	}
 
-	public static CommandCode toEnum(int code) {
-		for (CommandCode command : values()) {
+	public static RequestCode toEnum(int code) {
+		for (RequestCode command : values()) {
 			if (command.getCode() == code) {
 				return command;
 			}

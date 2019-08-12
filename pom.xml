@@ -24,10 +24,16 @@
 		<uuid.version>3.1.5</uuid.version>
 		<reflections.version>0.9.9-RC1</reflections.version>
 		<akka.version>2.4.17</akka.version>
+		<hutool.version>4.2.1</hutool.version>
 	</properties>
 
 
 	<dependencies>
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>${hutool.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-actor_2.11</artifactId>

@@ -1,16 +1,12 @@
 package io.github.pikaq.remoting.server;
 
-import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
+import io.github.pikaq.remoting.RemotingService;
 
-public interface RemotingServer {
+public interface RemotingServer extends RemotingService {
 
 	void start();
 
 	void shutdown();
-
-	void registerProcessor(int symbol, RemotingRequestProcessor processor);
-
-	RemotingRequestProcessor getProcessor(int symbol);
 
 	void registerShutdownHooks(Thread... hooks);
 

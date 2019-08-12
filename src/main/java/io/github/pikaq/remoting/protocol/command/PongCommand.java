@@ -9,7 +9,7 @@ public class PongCommand extends RemoteBaseCommand {
 
 	@Override
 	public int requestCode() {
-		return CommandCode.HEART_BEAT_RSP.getCode();
+		return RequestCode.HEART_BEAT_RSP.getCode();
 	}
 
 	@Override

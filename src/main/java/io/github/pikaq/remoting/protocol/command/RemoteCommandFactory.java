@@ -17,12 +17,6 @@ public interface RemoteCommandFactory {
 	void load(String scannerPath) throws RemoteCommandException;
 
 	/**
-	 * 根据指令编码构建一个远程命令
-	 * @param code 指令编码
-	 */
-	RemotingCommand newRemoteCommand(int requestCode) throws RemoteCommandException;
-
-	/**
 	 * 根据指令编码还原远程命令
 	 * @param code  指令编码
 	 */

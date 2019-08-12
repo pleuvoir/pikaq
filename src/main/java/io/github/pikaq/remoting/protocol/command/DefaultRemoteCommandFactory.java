@@ -53,17 +53,6 @@ public class DefaultRemoteCommandFactory implements RemoteCommandFactory {
 		}
 	}
 
-	@Override
-	public RemotingCommand newRemoteCommand(int symbol) {
-		Class<? extends RemotingCommand> remoteCommandClazz = MAPPINGS.get(symbol);
-		try {
-			RemotingCommand cmd = remoteCommandClazz.newInstance();
-			return cmd;
-		} catch (InstantiationException | IllegalAccessException e) {
-			LOG.error("实例化远程命令失败，", e);
-			throw new RemoteCommandException(e);
-		}
-	}
 
 	@Override
 	public Class<? extends RemotingCommand> fromRequestCode(int requestCode) {

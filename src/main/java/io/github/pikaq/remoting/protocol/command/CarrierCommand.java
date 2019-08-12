@@ -23,7 +23,7 @@ public class CarrierCommand<T> extends RemoteBaseCommand {
 
 	@Override
 	public int requestCode() {
-		return CommandCode.CARRIER.getCode();
+		return RequestCode.CARRIER.getCode();
 	}
 
 

@@ -15,12 +15,17 @@ import com.google.common.base.Stopwatch;
 import io.github.pikaq.common.util.PortUtils;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
+import io.github.pikaq.remoting.ClientChannelInfoManager;
+import io.github.pikaq.remoting.InvokeCallback;
 import io.github.pikaq.remoting.RemotingAbstract;
 import io.github.pikaq.remoting.RemotingContext;
-import io.github.pikaq.remoting.protocol.RemotingRequestProcessor;
+import io.github.pikaq.remoting.exception.RemotingSendRequestException;
+import io.github.pikaq.remoting.exception.RemotingTimeoutException;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
+import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -38,11 +43,9 @@ public abstract class AbstractServer extends RemotingAbstract implements Remotin
 	private ServerConfig serverConfig;
 
 	
-	AbstractServer(){
+	public AbstractServer(){
 		Initializer.init();
-		//registerProcessor(CommandCode.HEART_BEAT_REQ.getCode(), new PingCommandProcessor());
 	}
-
 
 	@Override
 	public void start() {
@@ -136,16 +139,28 @@ public abstract class AbstractServer extends RemotingAbstract implements Remotin
 	public ServerConfig getServerConfig() {
 		return serverConfig;
 	}
-	
+
+
 	@Override
-	public void registerProcessor(int symbol, RemotingRequestProcessor processor) {
-		this.processorTable.put(symbol, processor);
+	public RemotingCommand invokeSync(RemotingCommand request, long timeoutMillis)
+			throws RemotingTimeoutException, RemotingSendRequestException {
+		//TODO 
+		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
+		return super.invokeSyncImpl(channel, request, timeoutMillis);
 	}
 
 	@Override
-	public RemotingRequestProcessor getProcessor(int symbol) {
-		return processorTable.get(symbol);
+	public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback) throws RemotingSendRequestException {
+		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
+		super.invokeAsyncImpl(channel, request, invokeCallback);
 	}
+
+	@Override
+	public void invokeOneway(RemotingCommand request) throws RemotingSendRequestException {
+		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
+		super.invokeOnewayImpl(channel, request);
+	}
+
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 }

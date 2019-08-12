@@ -1,7 +1,6 @@
 package io.github.pikaq.remoting.client;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -9,16 +8,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
-import io.github.pikaq.remoting.Pendings;
+import io.github.pikaq.remoting.InvokeCallback;
+import io.github.pikaq.remoting.RemotingAbstract;
 import io.github.pikaq.remoting.RemotingContext;
 import io.github.pikaq.remoting.RunningState;
 import io.github.pikaq.remoting.exception.RemoteClientException;
-import io.github.pikaq.remoting.exception.RemoteExceptionTranslator;
 import io.github.pikaq.remoting.exception.RemotingSendRequestException;
+import io.github.pikaq.remoting.exception.RemotingTimeoutException;
 import io.github.pikaq.remoting.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 import io.netty.bootstrap.Bootstrap;
@@ -31,10 +30,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
-public abstract class AbstractClient implements Client {
+public abstract class AbstractClient extends RemotingAbstract implements RemotingClient {
 
 	private Bootstrap bootstrap;
 	private NioEventLoopGroup eventLoopGroup;
@@ -106,9 +103,11 @@ public abstract class AbstractClient implements Client {
 		runningState = RunningState.WAITING;
 	}
 	
-	protected abstract void doClose();
-	
-	protected abstract void doStart(RemotingContext remotingContext);
+	protected void doClose() {
+	};
+
+	protected void doStart(RemotingContext remotingContext) {
+	};
 	
 	protected ChannelFuture doConnectWithRetry(InetSocketAddress remoteAddress, int retryTimes)
 			 {
@@ -150,61 +149,25 @@ public abstract class AbstractClient implements Client {
 	}
 
 	@Override
-	public void sendOneWay(RemotingCommand request) throws RemotingSendRequestException {
+	public RemotingCommand invokeSync(RemotingCommand request, long timeoutMillis)
+			throws RemotingTimeoutException, RemotingSendRequestException {
 		checkRunningState();
-		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
-		commandLifeCycleListener.beforeSend(request);
-		this.channel.writeAndFlush(request);
-		commandLifeCycleListener.afterSend(request);
+		return super.invokeSyncImpl(channel, request, timeoutMillis);
 	}
 
 	@Override
-	public RemotingCommand sendRequest(RemotingCommand request) throws RemotingSendRequestException {
-		CompletableFuture<RemotingCommand> promise = this.sendAsyncRequest(request);
-		RemotingCommand result = null;
-		try {
-			result = promise.get(PikaqConst.DEFAULT_SEND_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-		} catch (Throwable e) {
-			throw RemoteExceptionTranslator.convertRemoteException(e);
-		}
-		return result;
+	public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback) throws RemotingSendRequestException {
+		checkRunningState();
+		super.invokeAsyncImpl(channel, request, invokeCallback);
 	}
 
 	@Override
-	public CompletableFuture<RemotingCommand> sendAsyncRequest(RemotingCommand request) throws RemotingSendRequestException {
-		
+	public void invokeOneway(RemotingCommand request) throws RemotingSendRequestException {
 		checkRunningState();
-		
-		RemoteCommandLifeCycleListener commandLifeCycleListener = SingletonFactoy.get(RemoteCommandLifeCycleListener.class);
-		commandLifeCycleListener.beforeSend(request);
-		
-		CompletableFuture<RemotingCommand> promise = new CompletableFuture<RemotingCommand>();
-		
-		//占位，保存请求记录，promise将在另外一个线程中complete，或者在下面exception
-		Pendings.put(request.getMessageId(), promise);
-		
-		this.channel.writeAndFlush(request).addListener(new GenericFutureListener<Future<? super Void>>() {
-			@Override
-			public void operationComplete(Future<? super Void> f) throws Exception {
-				
-				commandLifeCycleListener.sendComplete(request);
-				
-				if (!f.isSuccess()) {
-					commandLifeCycleListener.sendException(request, f.cause());
-					//异常时移除请求记录，并设置为失败
-					CompletableFuture<RemotingCommand> prev = Pendings.remove(request.getMessageId());
-					if (prev != null) {
-						prev.completeExceptionally(f.cause());
-					}
-				}
-			}
-		});
-		
-		commandLifeCycleListener.afterSend(request);
-		return promise;
+		super.invokeOnewayImpl(channel, request);
 	}
-	
-	
+
+
 	private void checkRunningState() throws RemotingSendRequestException{
 		if (!runningState.isRunning()) {
 			logger.debug("客户端未连接，请连接后再发送。");
@@ -213,6 +176,10 @@ public abstract class AbstractClient implements Client {
 		if (!connnectManager.validate(channel)) {
 			throw new RemotingSendRequestException("连接通道不可用");
 		}
+	}
+
+	public Channel getCurrentChannel() {
+		return channel;
 	}
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());

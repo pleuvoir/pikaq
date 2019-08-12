@@ -30,7 +30,7 @@ public class RemotingCommand implements ToJSON {
 	
 	@Getter
 	@Setter
-	private RemotingCommandType commandType;
+	protected RemotingCommandType commandType;
 	
 	
 	//是否需要响应

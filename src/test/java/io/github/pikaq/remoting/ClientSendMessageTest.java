@@ -3,11 +3,10 @@ package io.github.pikaq.remoting;
 import java.util.concurrent.TimeUnit;
 
 import io.github.pikaq.remoting.client.ClientConfig;
-import io.github.pikaq.remoting.client.DefaultClient;
+import io.github.pikaq.remoting.client.KeepAliveClient;
 import io.github.pikaq.remoting.exception.RemoteClientException;
 import io.github.pikaq.remoting.exception.RemotingSendRequestException;
 import io.github.pikaq.remoting.protocol.command.CarrierCommand;
-import io.github.pikaq.remoting.protocol.command.RemotingCommand;
 
 public class ClientSendMessageTest {
 
@@ -18,17 +17,17 @@ public class ClientSendMessageTest {
 				.startFailReconnectTimes(3)
 				.build();
 		
-		DefaultClient client = new DefaultClient("测试消息发送客户端");
+		KeepAliveClient client = new KeepAliveClient("测试消息发送客户端");
 		client.setClientConfig(clientConfig);
 		
 		client.connect();
 		
-		CarrierCommand<String> cmd = CarrierCommand.buildString(true, "", "");
-		cmd.setResponsible(true); //设置为需要响应，否则收不到异步通知
+		CarrierCommand<String> request = CarrierCommand.buildString(true, "", "");
+		
+		
 		while (true) {
 			System.out.println("send.");
-			RemotingCommand rsp = client.sendRequest(cmd);
-			System.out.println("同步响应 - " + rsp.toJSON());
+			client.invokeOneway(request);
 			TimeUnit.SECONDS.sleep(1);
 		}
 		

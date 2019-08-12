@@ -3,7 +3,7 @@ package io.github.pikaq.remoting;
 import org.junit.Assert;
 
 import io.github.pikaq.remoting.client.ClientConfig;
-import io.github.pikaq.remoting.client.DefaultClient;
+import io.github.pikaq.remoting.client.KeepAliveClient;
 import io.github.pikaq.remoting.exception.RemoteClientException;
 
 public class DefaultClientTest {
@@ -20,7 +20,7 @@ public class DefaultClientTest {
 		Assert.assertEquals(clientConfig.getPort(), 8443);
 		Assert.assertEquals(clientConfig.getStartFailReconnectTimes(), 3);
 
-		DefaultClient client = new DefaultClient("local_client");
+		KeepAliveClient client = new KeepAliveClient("local_client");
 
 		client.setClientConfig(clientConfig);
 		
