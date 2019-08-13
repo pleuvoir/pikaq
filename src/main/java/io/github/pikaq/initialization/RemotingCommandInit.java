@@ -1,9 +1,10 @@
 package io.github.pikaq.initialization;
 
+
 import io.github.pikaq.PikaqConst;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initable;
-import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
+import io.github.pikaq.protocol.command.RemoteCommandFactory;
 
 public class RemotingCommandInit implements Initable {
 

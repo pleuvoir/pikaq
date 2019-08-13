@@ -1,17 +1,17 @@
 package io.github.pikaq.initialization;
 
-import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
+import com.typesafe.config.ConfigFactory;
+import io.github.pikaq.ClientChannelInfoManager;
+import io.github.pikaq.client.ClientRemoteCommandtDispatcher;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.extension.ExtensionLoader;
 import io.github.pikaq.initialization.support.Initable;
-import io.github.pikaq.remoting.ClientChannelInfoManager;
-import io.github.pikaq.remoting.client.ClientRemoteCommandtDispatcher;
-import io.github.pikaq.remoting.protocol.command.DefaultRemoteCommandFactory;
-import io.github.pikaq.remoting.protocol.command.RemoteCommandFactory;
-import io.github.pikaq.remoting.server.ServerRemoteCommandtDispatcher;
+import io.github.pikaq.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.server.ServerRemoteCommandtDispatcher;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
