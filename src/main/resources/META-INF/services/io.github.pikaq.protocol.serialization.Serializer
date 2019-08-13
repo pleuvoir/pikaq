@@ -1,0 +1,2 @@
+io.github.pikaq.protocol.serialization.fastjson.FastjsonSerializer
+io.github.pikaq.protocol.serialization.hessian.HessianSerializer

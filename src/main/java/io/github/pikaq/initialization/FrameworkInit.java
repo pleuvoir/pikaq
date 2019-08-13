@@ -1,10 +1,10 @@
 package io.github.pikaq.initialization;
 
 
-import akka.actor.ActorSystem;
 import com.typesafe.config.ConfigFactory;
+
+import akka.actor.ActorSystem;
 import io.github.pikaq.ClientChannelInfoManager;
-import io.github.pikaq.client.ClientRemoteCommandtDispatcher;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.extension.ExtensionLoader;
 import io.github.pikaq.initialization.support.Initable;
@@ -34,8 +34,6 @@ public class FrameworkInit implements Initable {
 		
 		//远程命令工厂
 		SingletonFactoy.register(RemoteCommandFactory.class, new DefaultRemoteCommandFactory());
-		//客户端命令分发器
-		SingletonFactoy.register(ClientRemoteCommandtDispatcher.class, new ClientRemoteCommandtDispatcher());
 		//服务端命令分发器
 		SingletonFactoy.register(ServerRemoteCommandtDispatcher.class, new ServerRemoteCommandtDispatcher());
 		//服务端客户端信息管理器

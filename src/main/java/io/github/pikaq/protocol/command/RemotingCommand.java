@@ -1,12 +1,14 @@
 package io.github.pikaq.protocol.command;
 
+import java.util.Map;
+
 import com.google.common.collect.Maps;
+
 import io.github.pikaq.common.util.ToJSON;
 import io.github.pikaq.protocol.RemotingCommandType;
+import io.github.pikaq.protocol.command.body.RemotingCommandBody;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Map;
 
 /**
  * 远程命令
@@ -15,7 +17,6 @@ import java.util.Map;
  */
 public class RemotingCommand implements ToJSON {
 	
-	protected RemotingCommand(){}
 
 	//请求唯一id，client和server共享
 	@Getter
@@ -36,6 +37,10 @@ public class RemotingCommand implements ToJSON {
 	@Getter
 	@Setter
 	protected boolean responsible;
+	
+	@Getter
+	@Setter
+	protected RemotingCommandBody body;
 	
 	//附加参数
 	@Getter

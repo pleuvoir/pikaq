@@ -4,15 +4,9 @@ import com.google.common.base.Preconditions;
 
 public class ClientConfig {
 
-	private final String host;
-
-	private final int port;
-
 	private final int startFailReconnectTimes;
 
 	private final int connectTimeoutMillis;
-
-	private final Boolean devMode;
 
 	/**
 	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为30秒，即30秒发送一次心跳
@@ -30,30 +24,15 @@ public class ClientConfig {
 	public final long writerIdleTime;
 
 	private ClientConfig(ClientConfigBuilder builder) {
-		this.host = builder.host;
-		this.port = builder.port;
 		this.startFailReconnectTimes = builder.startFailReconnectTimes;
 		this.connectTimeoutMillis = builder.connectTimeoutMillis;
 		this.heartbeatIntervalSeconds = builder.heartbeatIntervalSeconds;
 		this.readerIdleTime = builder.readerIdleTime;
 		this.writerIdleTime = builder.writerIdleTime;
-		this.devMode = builder.devMode;
 	}
 
-	public static ClientConfigBuilder create(String host, int port) {
-		return new ClientConfigBuilder(host, port);
-	}
-
-	public Boolean getDevMode() {
-		return devMode;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
+	public static ClientConfigBuilder create() {
+		return new ClientConfigBuilder();
 	}
 
 	public int getStartFailReconnectTimes() {
@@ -69,9 +48,6 @@ public class ClientConfig {
 	}
 
 	public static class ClientConfigBuilder {
-		private final String host;
-
-		private final int port;
 
 		private int startFailReconnectTimes = 3;
 
@@ -89,11 +65,7 @@ public class ClientConfig {
 		 */
 		public long writerIdleTime = 30;
 
-		private Boolean devMode = false;
-
-		public ClientConfigBuilder(String host, int port) {
-			this.host = host;
-			this.port = port;
+		public ClientConfigBuilder() {
 		}
 
 		public ClientConfigBuilder writerIdleTime(long writerIdleTime) {
@@ -103,11 +75,6 @@ public class ClientConfig {
 
 		public ClientConfigBuilder readerIdleTime(long readerIdleTime) {
 			this.readerIdleTime = readerIdleTime;
-			return this;
-		}
-
-		public ClientConfigBuilder devMode(Boolean devMode) {
-			this.devMode = devMode;
 			return this;
 		}
 

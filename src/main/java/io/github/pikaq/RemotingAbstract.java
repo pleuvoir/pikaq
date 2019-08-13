@@ -1,23 +1,28 @@
 package io.github.pikaq;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
 import io.github.pikaq.common.util.SingletonFactoy;
+import io.github.pikaq.protocol.RemotingCommandType;
 import io.github.pikaq.protocol.RemotingRequestProcessor;
-import io.github.pikaq.protocol.command.CarrierCommand;
 import io.github.pikaq.protocol.command.RemotingCommand;
+import io.github.pikaq.protocol.command.body.CarrierCommandBody;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.concurrent.*;
 
 /**
  * netty远程抽象实现
@@ -71,6 +76,7 @@ public class RemotingAbstract {
 				processResponseCommand(ctx, cmd); // 处理返回的响应，实际上服务端发送的消息不一定是响应消息，也可以主动发送
 				break;
 			default:
+				log.error("unknow commandtype . {}", cmd.toJSON());
 				break;
 			}
 		}
@@ -84,9 +90,12 @@ public class RemotingAbstract {
 		RemotingRequestProcessor processor = SingletonFactoy.get(RemotingRequestProcessor.class);
 		if (processor == null) {
 			// 如果处理器为空则返回一条server empty processor消息
-			RemotingCommand emptyResponse = CarrierCommand.buildString(false,
-					"empty processor, requestCode=" + request.getRequestCode(), null);
-			ctx.writeAndFlush(emptyResponse);
+			
+			RemotingCommand response = new RemotingCommand();
+			response.setResponsible(false);
+			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
+			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
+			ctx.writeAndFlush(response);
 			return;
 		}
 
@@ -133,8 +142,8 @@ public class RemotingAbstract {
 	/**
 	 * 发送同步请求
 	 */
-	protected RemotingCommand invokeSyncImpl(final Channel channel, final RemotingCommand request, final long timeoutMillis)
-			throws RemotingTimeoutException, RemotingSendRequestException {
+	protected RemotingCommand invokeSyncImpl(final Channel channel, final RemotingCommand request,
+			final long timeoutMillis) throws RemotingTimeoutException, RemotingSendRequestException {
 		String messageId = request.getMessageId();
 		final RemotingFuture remotingFuture = new RemotingFuture(messageId, timeoutMillis, null);
 		// 保存请求响应对应关系
@@ -200,14 +209,15 @@ public class RemotingAbstract {
 	/**
 	 * 发送Oneway请求
 	 */
-	protected void invokeOnewayImpl(final Channel channel, final RemotingCommand request) throws RemotingSendRequestException {
+	protected void invokeOnewayImpl(final Channel channel, final RemotingCommand request)
+			throws RemotingSendRequestException {
 		// 无需响应
 		request.setResponsible(false);
 		channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture f) throws Exception {
 				if (!f.isSuccess()) {
-					log.warn("send a request command to channel <" + channel.remoteAddress() + "> failed.");
+					log.warn("send a request command to channel <" + channel.remoteAddress() + "> failed. ", f.cause());
 				}
 			}
 		});

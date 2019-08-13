@@ -8,8 +8,6 @@ package io.github.pikaq.protocol.command;
  */
 public class PingCommand extends RemoteBaseCommand {
 
-	private String clientID;
-
 	@Override
 	public int requestCode() {
 		return RequestCode.HEART_BEAT_REQ.getCode();
@@ -18,14 +16,6 @@ public class PingCommand extends RemoteBaseCommand {
 	@Override
 	public boolean responsible() {
 		return true;
-	}
-
-	public String getClientID() {
-		return clientID;
-	}
-
-	public void setClientID(String clientID) {
-		this.clientID = clientID;
 	}
 
 }

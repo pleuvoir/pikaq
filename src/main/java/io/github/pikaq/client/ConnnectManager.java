@@ -1,14 +1,17 @@
 package io.github.pikaq.client;
 
-import io.github.pikaq.common.util.NameThreadFactoryImpl;
-import io.github.pikaq.common.util.RemotingUtils;
-import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.github.pikaq.common.util.NameThreadFactoryImpl;
+import io.github.pikaq.common.util.RemotingUtils;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 
 /**
  * 连接管理器
@@ -18,9 +21,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConnnectManager {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(ConnnectManager.class);
+	private final Bootstrap bootstrap;
 
-	public static final ConnnectManager INSTANCE = new ConnnectManager();
+	public ConnnectManager(Bootstrap bootstrap) {
+		this.bootstrap = bootstrap;
+	}
 
 	public ConcurrentHashMap<String, Channel> tables = new ConcurrentHashMap<String, Channel>();
 
@@ -67,10 +72,31 @@ public class ConnnectManager {
 		tables.remove(addr);
 	}
 
-	public boolean validate(Channel channel) {
+	public synchronized boolean validate(Channel channel) {
 		return channel != null && channel.isActive();
 	}
 
-	private ConnnectManager() {
+	public synchronized Channel getOrCreateChannel(String addr) {
+		Channel channel = tables.get(addr);
+		if (channel == null) {
+			Channel createNewChannel = createNewChannel(addr);
+			this.tables.put(addr, createNewChannel);
+			return createNewChannel;
+		}
+
+		if (!validate(channel)) {
+			channel.close();
+			removeChannel(RemotingUtils.parseChannelRemoteAddr(channel));
+		}
+		return channel;
 	}
+
+	private Channel createNewChannel(String addr) {
+		ChannelFuture future = this.bootstrap.connect(RemotingUtils.string2SocketAddress(addr));
+		future.awaitUninterruptibly();
+		Channel newChannel = future.channel();
+		return newChannel;
+	}
+
+	protected static final Logger LOG = LoggerFactory.getLogger(ConnnectManager.class);
 }

@@ -1,16 +1,19 @@
 package io.github.pikaq.server;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import akka.actor.UntypedActor;
 import io.github.pikaq.RemoteInvokerContext;
 import io.github.pikaq.common.util.SingletonFactoy;
+import io.github.pikaq.protocol.RemotingCommandType;
 import io.github.pikaq.protocol.RemotingRequestProcessor;
-import io.github.pikaq.protocol.command.CarrierCommand;
 import io.github.pikaq.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.protocol.command.RemotingCommand;
+import io.github.pikaq.protocol.command.RequestCode;
+import io.github.pikaq.protocol.command.body.CarrierCommandBody;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DispatcherActor extends UntypedActor {
 
@@ -35,7 +38,12 @@ public class DispatcherActor extends UntypedActor {
 		RemotingCommand response = null;
 
 		if (processor == null) {
-			response = CarrierCommand.buildString(true, "server empty processor", "OK");
+			response = new RemotingCommand();
+			response.setResponsible(false);
+			response.setRequestCode(RequestCode.CARRIER.getCode());
+			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
+			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
+			
 		} else {
 			response = processor.handler(ctx, request);
 			assert response != null;

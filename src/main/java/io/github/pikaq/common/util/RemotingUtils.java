@@ -1,5 +1,6 @@
 package io.github.pikaq.common.util;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,5 +28,14 @@ public class RemotingUtils {
 			return addr;
 		}
 		return StringUtils.EMPTY;
+	}
+
+	/**
+	 * 转换为远程连接地址
+	 */
+	public static SocketAddress string2SocketAddress(final String addr) {
+		String[] s = addr.split(":");
+		InetSocketAddress isa = new InetSocketAddress(s[0], Integer.parseInt(s[1]));
+		return isa;
 	}
 }

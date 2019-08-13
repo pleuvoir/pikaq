@@ -1,38 +1,36 @@
 package io.github.pikaq.remoting;
 
 
-import io.github.pikaq.client.ClientConfig;
-import io.github.pikaq.client.KeepAliveClient;
-import io.github.pikaq.common.exception.RemoteClientException;
 import org.junit.Assert;
 
-public class DefaultClientTest {
+import io.github.pikaq.client.ClientConfig;
+import io.github.pikaq.client.SimpleClient;
+import io.github.pikaq.common.exception.RemoteClientException;
+
+public class SimpleClientTest {
 
 	// junit会退出去 大坑
 	public static void main(String[] args) throws RemoteClientException {
-		ClientConfig clientConfig = ClientConfig.create("127.0.0.1", 8443)
+		ClientConfig clientConfig = ClientConfig.create()
 				.connectTimeoutMillis(5000)
 				.startFailReconnectTimes(3)
 				.build();
 
-		Assert.assertEquals(clientConfig.getHost(), "127.0.0.1");
 		Assert.assertEquals(clientConfig.getConnectTimeoutMillis(), 5000);
-		Assert.assertEquals(clientConfig.getPort(), 8443);
 		Assert.assertEquals(clientConfig.getStartFailReconnectTimes(), 3);
 
-		KeepAliveClient client = new KeepAliveClient("local_client");
+		SimpleClient client = new SimpleClient(clientConfig);
 
-		client.setClientConfig(clientConfig);
 		
 		Assert.assertTrue(!client.runningState().isRunning());
-		client.connect();
+		client.connectWithRetry("127.0.0.1:8443");
 		
 		Assert.assertTrue(client.runningState().isRunning());
 		
 		
-		client.shutdown();
+		//client.shutdown();
 		
-		Assert.assertTrue(!client.runningState().isRunning());
+		//Assert.assertTrue(!client.runningState().isRunning());
 	}
 
 }

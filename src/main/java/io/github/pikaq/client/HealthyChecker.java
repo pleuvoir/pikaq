@@ -1,6 +1,7 @@
 package io.github.pikaq.client;
 
 import io.github.pikaq.common.annotation.ClientSide;
+import io.github.pikaq.common.util.RemotingUtils;
 import io.github.pikaq.protocol.command.PingCommand;
 import io.github.pikaq.protocol.command.PongCommand;
 import io.netty.channel.ChannelHandlerContext;
@@ -72,8 +73,7 @@ public class HealthyChecker extends SimpleChannelInboundHandler<PongCommand> {
 		if (client.runningState().isRunning()) {
 			ctx.executor().schedule(() -> {
 				LOG.info("[{}] Try to reconnecting...", HealthyChecker.class.getSimpleName());
-				client.shutdown();
-				client.connect();
+				client.connectWithRetry(RemotingUtils.parseChannelRemoteAddr(ctx.channel()));
 			}, 5, TimeUnit.SECONDS);
 			ctx.fireChannelInactive();
 		}
