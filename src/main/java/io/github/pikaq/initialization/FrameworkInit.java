@@ -10,7 +10,7 @@ import io.github.pikaq.extension.ExtensionLoader;
 import io.github.pikaq.initialization.support.Initable;
 import io.github.pikaq.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.protocol.command.RemoteCommandFactory;
-import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.protocol.serialization.Serializer;
 import io.github.pikaq.server.ServerRemoteCommandtDispatcher;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,12 +1,12 @@
 package io.github.pikaq.protocol.codec;
 
+
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.protocol.command.RemotingCommand;
-import io.github.pikaq.serialization.SerializationFactory;
-import io.github.pikaq.serialization.Serializer;
+import io.github.pikaq.protocol.serialization.SerializationFactory;
+import io.github.pikaq.protocol.serialization.Serializer;
 import io.netty.buffer.ByteBuf;
-
 
 /**
  * RemoteCommand编解码器
