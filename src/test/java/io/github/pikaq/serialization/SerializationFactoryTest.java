@@ -1,12 +1,11 @@
 package io.github.pikaq.serialization;
 
+import io.github.pikaq.PikaqConst;
+import io.github.pikaq.protocol.serialization.SerializationFactory;
+import io.github.pikaq.protocol.serialization.Serializer;
+import io.github.pikaq.protocol.serialization.SerializerAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
-
-import io.github.pikaq.PikaqConst;
-import io.github.pikaq.serialization.SerializationFactory;
-import io.github.pikaq.serialization.Serializer;
-import io.github.pikaq.serialization.SerializerAlgorithm;
 
 public class SerializationFactoryTest {
 

@@ -1,10 +1,10 @@
 package io.github.pikaq.remoting;
 
-import org.junit.Assert;
 
-import io.github.pikaq.remoting.client.ClientConfig;
-import io.github.pikaq.remoting.client.KeepAliveClient;
-import io.github.pikaq.remoting.exception.RemoteClientException;
+import io.github.pikaq.client.ClientConfig;
+import io.github.pikaq.client.KeepAliveClient;
+import io.github.pikaq.common.exception.RemoteClientException;
+import org.junit.Assert;
 
 public class DefaultClientTest {
 

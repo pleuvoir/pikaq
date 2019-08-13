@@ -1,7 +1,8 @@
 
 package io.github.pikaq.command;
 
-import io.github.pikaq.remoting.protocol.command.RemoteBaseCommand;
+
+import io.github.pikaq.protocol.command.RemoteBaseCommand;
 
 public class UserReqCommand extends RemoteBaseCommand {
 

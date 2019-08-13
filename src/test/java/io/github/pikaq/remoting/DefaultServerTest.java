@@ -1,9 +1,9 @@
 package io.github.pikaq.remoting;
 
-import org.junit.Test;
 
-import io.github.pikaq.remoting.server.DefaultServer;
-import io.github.pikaq.remoting.server.ServerConfig;
+import io.github.pikaq.server.DefaultServer;
+import io.github.pikaq.server.ServerConfig;
+import org.junit.Test;
 
 public class DefaultServerTest {
 

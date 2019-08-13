@@ -1,12 +1,13 @@
 package io.github.pikaq.remoting;
 
-import java.util.concurrent.TimeUnit;
 
-import io.github.pikaq.remoting.client.ClientConfig;
-import io.github.pikaq.remoting.client.KeepAliveClient;
-import io.github.pikaq.remoting.exception.RemoteClientException;
-import io.github.pikaq.remoting.exception.RemotingSendRequestException;
-import io.github.pikaq.remoting.protocol.command.CarrierCommand;
+import io.github.pikaq.client.ClientConfig;
+import io.github.pikaq.client.KeepAliveClient;
+import io.github.pikaq.common.exception.RemoteClientException;
+import io.github.pikaq.common.exception.RemotingSendRequestException;
+import io.github.pikaq.protocol.command.CarrierCommand;
+
+import java.util.concurrent.TimeUnit;
 
 public class ClientSendMessageTest {
 
