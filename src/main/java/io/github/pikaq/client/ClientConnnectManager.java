@@ -19,11 +19,11 @@ import io.netty.channel.ChannelFuture;
  * @author pleuvoir
  *
  */
-public class ConnnectManager {
+public class ClientConnnectManager {
 
 	private final Bootstrap bootstrap;
 
-	public ConnnectManager(Bootstrap bootstrap) {
+	public ClientConnnectManager(Bootstrap bootstrap) {
 		this.bootstrap = bootstrap;
 	}
 
@@ -98,5 +98,5 @@ public class ConnnectManager {
 		return newChannel;
 	}
 
-	protected static final Logger LOG = LoggerFactory.getLogger(ConnnectManager.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ClientConnnectManager.class);
 }

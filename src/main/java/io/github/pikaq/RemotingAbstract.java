@@ -10,6 +10,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
@@ -41,6 +44,8 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("all")
 public class RemotingAbstract {
 
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	/**
 	 * 保存正在处理的消息请求<br>
 	 * 因为netty是以异步发送，所以发送后接受到的响应通过此寻找之前的对应关系

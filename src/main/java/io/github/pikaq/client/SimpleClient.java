@@ -3,9 +3,6 @@ package io.github.pikaq.client;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Stopwatch;
 
 import io.github.pikaq.InvokeCallback;
@@ -39,7 +36,7 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	private NioEventLoopGroup eventLoopGroup;
 	private ClientConfig clientConfig;
 	private RunningState runningState;
-	private ConnnectManager connnectManager;
+	private ClientConnnectManager clientConnnectManager;
 
 	public SimpleClient(ClientConfig clientConfig) {
 		Initializer.init();
@@ -64,7 +61,7 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 					}
 				});
 
-		connnectManager = new ConnnectManager(bootstrap);
+		clientConnnectManager = new ClientConnnectManager(bootstrap);
 		runningState = RunningState.WAITING;
 	}
 
@@ -75,9 +72,9 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 		SocketAddress remoteAddress = RemotingUtils.string2SocketAddress(addr);
 		ChannelFuture future = doConnectWithRetry(remoteAddress, clientConfig.getStartFailReconnectTimes());
 		Channel channel = future.channel();
-		connnectManager.putChannel(channel);
-		connnectManager.fireHoldTask();
-		connnectManager.printAliveChannel();
+		clientConnnectManager.putChannel(channel);
+		clientConnnectManager.fireHoldTask();
+		clientConnnectManager.printAliveChannel();
 		channel.writeAndFlush(new PingCommand());
 		runningState = RunningState.RUNNING;
 		logger.info("客户端连接启动完成，耗时：{}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -115,20 +112,20 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	@Override
 	public RemotingCommand invokeSync(String addr, RemotingCommand request, long timeoutMillis)
 			throws RemotingTimeoutException, RemotingSendRequestException {
-		Channel channel = connnectManager.getOrCreateChannel(addr);
+		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
 		return super.invokeSyncImpl(channel, request, timeoutMillis);
 	}
 
 	@Override
 	public void invokeAsync(String addr, RemotingCommand request, InvokeCallback invokeCallback)
 			throws RemotingSendRequestException {
-		Channel channel = connnectManager.getOrCreateChannel(addr);
+		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
 		super.invokeAsyncImpl(channel, request, invokeCallback);
 	}
 
 	@Override
 	public void invokeOneway(String addr, RemotingCommand request) throws RemotingSendRequestException {
-		Channel channel = connnectManager.getOrCreateChannel(addr);
+		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
 		super.invokeOnewayImpl(channel, request);
 	}
 
@@ -154,7 +151,5 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	public RunningState runningState() {
 		return runningState;
 	}
-
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 }

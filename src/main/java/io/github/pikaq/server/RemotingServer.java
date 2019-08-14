@@ -11,8 +11,6 @@ public interface RemotingServer extends RemotingService {
 
 	void registerShutdownHooks(Thread... hooks);
 
-	String getServerName();
-
 	void setServerConfig(ServerConfig serverConfig);
 
 	ServerConfig getServerConfig();
