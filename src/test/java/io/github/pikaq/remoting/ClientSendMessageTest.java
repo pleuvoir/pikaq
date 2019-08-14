@@ -5,10 +5,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
+
 import io.github.pikaq.client.ClientConfig;
 import io.github.pikaq.client.SimpleClient;
 import io.github.pikaq.common.exception.RemoteClientException;
 import io.github.pikaq.common.exception.RemotingSendRequestException;
+import io.github.pikaq.protocol.RemotingCommandType;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.github.pikaq.protocol.command.RequestCode;
 import io.github.pikaq.protocol.command.body.CarrierCommandBody;
@@ -30,15 +33,18 @@ public class ClientSendMessageTest {
 		client.connectWithRetry("127.0.0.1:8443");
 		
 		
-		RemotingCommand request = new RemotingCommand();
-		request.setBody(CarrierCommandBody.buildString(true, "hehe", "OK"));
-		request.setResponsible(true);
-		request.setRequestCode(RequestCode.CARRIER.getCode());
+	
 		
 		while (true) {
-			System.out.println("send.");
+			RemotingCommand request = new RemotingCommand();
+			request.setBody(CarrierCommandBody.buildString(true, "hehe", "OK"));
+			request.setResponsible(true);
+			request.setRequestCode(RequestCode.CARRIER.getCode());
+			request.setCommandType(RemotingCommandType.REQUEST_COMMAND);
+			request.setMessageId(System.currentTimeMillis() + "");
+			System.out.println("send." + JSON.toJSONString(request));
 			client.invokeOneway("127.0.0.1:8443", request);
-			TimeUnit.SECONDS.sleep(3);
+			TimeUnit.SECONDS.sleep(5);
 		}
 		
 	}

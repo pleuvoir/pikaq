@@ -1,6 +1,5 @@
 package io.github.pikaq.server;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,25 +24,26 @@ public class DispatcherActor extends UntypedActor {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void onReceive(Object msg) throws Throwable {
-		logger.info("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+		logger.info("onReceive =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 
 		RemoteInvokerContext invokerContext = (RemoteInvokerContext) msg;
 
 		RemotingCommand request = invokerContext.getRequest();
 		ChannelHandlerContext ctx = invokerContext.getCtx();
-		
-		 RemotingRequestProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class)
+
+		RemotingRequestProcessor processor = SingletonFactoy.get(RemoteCommandFactory.class)
 				.select(request.getRequestCode());
-		
+
 		RemotingCommand response = null;
 
 		if (processor == null) {
+			logger.info("processor is null, request code = {}", request.getRequestCode());
 			response = new RemotingCommand();
 			response.setResponsible(false);
 			response.setRequestCode(RequestCode.CARRIER.getCode());
 			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
 			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
-			
+
 		} else {
 			response = processor.handler(ctx, request);
 			assert response != null;
@@ -52,6 +52,8 @@ public class DispatcherActor extends UntypedActor {
 		response.setMessageId(request.getMessageId());
 
 		getSender().tell(response, getSelf());
+
+		logger.info("tell =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 	}
 
 }

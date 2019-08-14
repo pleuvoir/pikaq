@@ -13,6 +13,14 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnFailure;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
@@ -21,11 +29,13 @@ import io.github.pikaq.protocol.RemotingCommandType;
 import io.github.pikaq.protocol.RemotingRequestProcessor;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.github.pikaq.protocol.command.body.CarrierCommandBody;
+import io.github.pikaq.server.DispatcherActor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
+import scala.concurrent.Future;
 
 /**
  * netty远程抽象实现
@@ -87,37 +97,83 @@ public class RemotingAbstract {
 		}
 	}
 
-	/**
-	 * 处理对端发送的请求消息
-	 */
-	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
-		// 获取请求处理器
-		RemotingRequestProcessor processor = SingletonFactoy.get(RemotingRequestProcessor.class);
-		if (processor == null) {
-			// 如果处理器为空则返回一条server empty processor消息
-			
-			RemotingCommand response = new RemotingCommand();
-			response.setResponsible(false);
-			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
-			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
-			ctx.writeAndFlush(response);
-			return;
-		}
+//	/**
+//	 * 处理对端发送的请求消息
+//	 */
+//	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
+//		// 获取请求处理器
+//		RemotingRequestProcessor processor = SingletonFactoy.get(RemotingRequestProcessor.class);
+//		if (processor == null) {
+//			// 如果处理器为空则返回一条server empty processor消息
+//			
+//			RemotingCommand response = new RemotingCommand();
+//			response.setResponsible(false);
+//			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
+//			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
+//			ctx.writeAndFlush(response);
+//			return;
+//		}
+//
+//		// 处理请求
+//		final RemotingCommand response = processor.handler(ctx, request);
+//		if (response == null) {
+//			log.warn("processRequestCommand handler request, but return null. requestCode={}",
+//					request.getRequestCode());
+//			return;
+//		}
+//
+//		// 只有需要响应的消息才回复
+//		if (response.isResponsible()) {
+//			ctx.writeAndFlush(response);
+//		}
+//	}
 
-		// 处理请求
-		final RemotingCommand response = processor.handler(ctx, request);
-		if (response == null) {
-			log.warn("processRequestCommand handler request, but return null. requestCode={}",
-					request.getRequestCode());
-			return;
-		}
+	
+	
+	
+	
+	
+	
+	public void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
+		// DispatcherActor不能通过new的方式创建
+		RemoteInvokerContext invokerContext = RemoteInvokerContext.create().ctx(ctx).request(request).build();
 
-		// 只有需要响应的消息才回复
-		if (response.isResponsible()) {
-			ctx.writeAndFlush(response);
-		}
+		ActorSystem system = SingletonFactoy.get(ActorSystem.class);
+		ActorRef actorRef = system.actorOf(Props.create(DispatcherActor.class));
+		// 业务超时时间
+		Timeout timeout = Timeout.apply(PikaqConst.OPT_TIMEOUT, TimeUnit.SECONDS);
+
+		Future<RemotingCommand> future = Patterns.ask(actorRef, invokerContext, timeout)
+				.map(new Mapper<Object, RemotingCommand>() {
+					@Override
+					public RemotingCommand apply(Object parameter) {
+						return (RemotingCommand) parameter;
+					}
+				}, system.dispatcher());
+
+		// 成功回调
+		future.onSuccess(new OnSuccess<RemotingCommand>() {
+			@Override
+			public void onSuccess(RemotingCommand response) throws Throwable {
+				if (request.isResponsible()) {
+					response.setMessageId(request.getMessageId());
+					ctx.writeAndFlush(response);
+					logger.debug("[服务端分发器]响应命令处理结束：request={}，response={}", request.toJSON(), response.toJSON());
+				}
+				system.stop(actorRef);
+			}
+		}, system.dispatcher());
+
+		// 失败回调
+		future.onFailure(new OnFailure() {
+			@Override
+			public void onFailure(Throwable e) throws Throwable {
+				logger.error(e.getMessage(), e);
+				system.stop(actorRef);
+			}
+		}, system.dispatcher());
 	}
-
+	
 	/**
 	 * 处理之前发送给远端请求后 现在远端响应过来的消息
 	 */

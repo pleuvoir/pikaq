@@ -8,19 +8,13 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Stopwatch;
 
-import io.github.pikaq.ClientChannelInfoManager;
-import io.github.pikaq.InvokeCallback;
 import io.github.pikaq.RemotingAbstract;
-import io.github.pikaq.common.exception.RemotingSendRequestException;
-import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.RemotingUtils;
-import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -45,7 +39,7 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 		RemotingUtils.validate(serverConfig);
 		this.serverConfig = serverConfig;
 		Initializer.init();
-		final ServerBootstrap bootstrap = new ServerBootstrap();
+		this.bootstrap = new ServerBootstrap();
 		this.bossGroup = new NioEventLoopGroup();
 		this.workGroup = new NioEventLoopGroup();
 
@@ -103,11 +97,6 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 	}
 
 	@Override
-	public void setServerConfig(ServerConfig serverConfig) {
-		this.serverConfig = serverConfig;
-	}
-
-	@Override
 	public ServerConfig getServerConfig() {
 		return serverConfig;
 	}
@@ -122,26 +111,6 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 			logger.info(" -=-=-=-=-= processMessageReceived -=-=-=-=-= {}", msg.toJSON());
 			processMessageReceived(ctx, msg);
 		}
-	}
-	
-	@Override
-	public RemotingCommand invokeSync(RemotingCommand request, long timeoutMillis)
-			throws RemotingTimeoutException, RemotingSendRequestException {
-		//TODO 
-		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
-		return super.invokeSyncImpl(channel, request, timeoutMillis);
-	}
-
-	@Override
-	public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback) throws RemotingSendRequestException {
-		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
-		super.invokeAsyncImpl(channel, request, invokeCallback);
-	}
-
-	@Override
-	public void invokeOneway(RemotingCommand request) throws RemotingSendRequestException {
-		Channel channel = SingletonFactoy.get(ClientChannelInfoManager.class).get(null).getChannel();
-		super.invokeOnewayImpl(channel, request);
 	}
 
 }

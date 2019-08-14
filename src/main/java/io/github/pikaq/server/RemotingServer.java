@@ -1,17 +1,12 @@
 package io.github.pikaq.server;
 
-
-import io.github.pikaq.RemotingService;
-
-public interface RemotingServer extends RemotingService {
+public interface RemotingServer {
 
 	void start();
 
 	void shutdown();
 
 	void registerShutdownHooks(Thread... hooks);
-
-	void setServerConfig(ServerConfig serverConfig);
 
 	ServerConfig getServerConfig();
 }

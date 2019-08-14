@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
 import io.github.pikaq.common.util.RemotingUtils;
 import io.netty.bootstrap.Bootstrap;
@@ -76,10 +77,15 @@ public class ClientConnnectManager {
 		return channel != null && channel.isActive();
 	}
 
-	public synchronized Channel getOrCreateChannel(String addr) {
+	public synchronized Channel getOrCreateChannel(String addr) throws RemotingSendRequestException {
 		Channel channel = tables.get(addr);
 		if (channel == null) {
 			Channel createNewChannel = createNewChannel(addr);
+			
+			if (!validate(createNewChannel)) {
+				throw new RemotingSendRequestException("can't connect fail, addr=" + addr);
+			}
+			
 			this.tables.put(addr, createNewChannel);
 			return createNewChannel;
 		}
