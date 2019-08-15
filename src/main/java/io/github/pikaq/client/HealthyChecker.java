@@ -1,16 +1,18 @@
 package io.github.pikaq.client;
 
-import io.github.pikaq.common.annotation.ClientSide;
-import io.github.pikaq.common.util.RemotingUtils;
-import io.github.pikaq.protocol.command.PingCommand;
-import io.github.pikaq.protocol.command.PongCommand;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleStateEvent;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
+import io.github.pikaq.MessageFrom;
+import io.github.pikaq.common.annotation.ClientSide;
+import io.github.pikaq.common.util.RemotingUtils;
+import io.github.pikaq.protocol.command.embed.PingCommand;
+import io.github.pikaq.protocol.command.embed.PongCommand;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 
 /**
  * 健康检查
@@ -49,6 +51,7 @@ public class HealthyChecker extends SimpleChannelInboundHandler<PongCommand> {
 		ctx.executor().schedule(() -> {
 			if (ctx.channel().isActive()) {
 				PingCommand request = new PingCommand();
+				request.setMessageFrom(MessageFrom.CLIENT);
 				ctx.writeAndFlush(request);
 				LOG.debug("[client]发送心跳报文到对端。心跳间隔{}s，request={}", clientConfig.getHeartbeatIntervalSeconds(),
 						request.toJSON());

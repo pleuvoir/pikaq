@@ -121,7 +121,9 @@ public class RemotingAbstract {
 				if (request.isResponsible()) {
 					response.setMessageId(request.getMessageId());
 					ctx.writeAndFlush(response);
-					logger.debug("[服务端分发器]响应命令处理结束：request={}，response={}", request.toJSON(), response.toJSON());
+					logger.debug("命令处理结束：request={}，response={}", request.toJSON(), response.toJSON());
+				} else {
+					logger.debug("命令处理结束，消息无需响应。request={}，response={}", request.toJSON(), response.toJSON());
 				}
 				system.stop(actorRef);
 			}
@@ -190,7 +192,7 @@ public class RemotingAbstract {
 		if (response == null) {
 			if (remotingFuture.isSendRequestOK()) {
 				// 如果发送成功了还返回null，只能是等待对端响应超时了
-				throw new RemotingTimeoutException();
+				throw new RemotingTimeoutException("response return null");
 			} else {
 				// 发送失败
 				throw new RemotingSendRequestException();

@@ -1,4 +1,4 @@
-package io.github.pikaq.protocol;
+package io.github.pikaq.protocol.command;
 
 public enum RemotingCommandType {
 

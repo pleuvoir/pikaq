@@ -1,6 +1,8 @@
-package io.github.pikaq.protocol.command;
+package io.github.pikaq.protocol.command.embed;
 
-import io.github.pikaq.protocol.RemotingCommandType;
+import io.github.pikaq.protocol.command.RemoteBaseCommand;
+import io.github.pikaq.protocol.command.RemotingCommandType;
+import io.github.pikaq.protocol.command.RequestCode;
 
 /**
  * 心跳响应命令

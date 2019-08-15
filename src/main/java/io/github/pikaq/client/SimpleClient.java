@@ -14,8 +14,8 @@ import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.common.util.RemotingUtils;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
-import io.github.pikaq.protocol.command.PingCommand;
 import io.github.pikaq.protocol.command.RemotingCommand;
+import io.github.pikaq.protocol.command.embed.PingCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -111,20 +111,20 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	public RemotingCommand invokeSync(String addr, RemotingCommand request, long timeoutMillis)
 			throws RemotingTimeoutException, RemotingSendRequestException {
 		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
-		return super.invokeSyncImpl(channel, request, timeoutMillis);
+		return super.invokeSyncImpl(channel, request.clone(), timeoutMillis);
 	}
 
 	@Override
 	public void invokeAsync(String addr, RemotingCommand request, InvokeCallback invokeCallback)
 			throws RemotingSendRequestException {
 		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
-		super.invokeAsyncImpl(channel, request, invokeCallback);
+		super.invokeAsyncImpl(channel, request.clone(), invokeCallback);
 	}
 
 	@Override
 	public void invokeOneway(String addr, RemotingCommand request) throws RemotingSendRequestException {
 		Channel channel = clientConnnectManager.getOrCreateChannel(addr);
-		super.invokeOnewayImpl(channel, request);
+		super.invokeOnewayImpl(channel, request.clone());
 	}
 
 	/**

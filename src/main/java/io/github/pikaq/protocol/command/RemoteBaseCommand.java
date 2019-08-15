@@ -1,7 +1,6 @@
 package io.github.pikaq.protocol.command;
 
 import io.github.pikaq.common.util.Generator;
-import io.github.pikaq.protocol.RemotingCommandType;
 
 /**
  * 所有的远程命令通过继承此类实现
@@ -17,14 +16,6 @@ public abstract class RemoteBaseCommand extends RemotingCommand {
 		requestCode = requestCode();
 		responsible = responsible();
 		commandType = remotingCommandType();
-	}
-
-	public void markRequest(){
-		commandType = RemotingCommandType.REQUEST_COMMAND;
-	}
-	
-	public void markResponse(){
-		commandType = RemotingCommandType.RESPONSE_COMMAND;
 	}
 
 	/**

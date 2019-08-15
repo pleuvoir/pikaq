@@ -32,4 +32,11 @@ public class ServerIdleStateHandler extends IdleStateHandler {
 		ctx.channel().close();
 	}
 
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		ctx.close();
+		LOG.error("ctx close,cause:", cause);
+		super.exceptionCaught(ctx, cause);
+	}
+
 }
