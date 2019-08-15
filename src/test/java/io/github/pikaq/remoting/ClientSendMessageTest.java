@@ -14,7 +14,6 @@ import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.protocol.RemotingCommandType;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.github.pikaq.protocol.command.RequestCode;
-import io.github.pikaq.protocol.command.body.CarrierCommandBody;
 
 public class ClientSendMessageTest {
 
@@ -32,12 +31,10 @@ public class ClientSendMessageTest {
 		
 		client.connectWithRetry("127.0.0.1:8443");
 		
-		
 	
 		
 		while (true) {
 			RemotingCommand request = new RemotingCommand();
-			request.setBody(CarrierCommandBody.buildString(true, "hehe", "OK"));
 			request.setResponsible(true);
 			request.setRequestCode(RequestCode.CARRIER.getCode());
 			request.setCommandType(RemotingCommandType.REQUEST_COMMAND);

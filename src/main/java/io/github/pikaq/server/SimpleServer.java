@@ -4,13 +4,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
 
 import io.github.pikaq.RemotingAbstract;
 import io.github.pikaq.common.util.RemotingUtils;
-import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.netty.bootstrap.ServerBootstrap;
@@ -38,7 +34,6 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 	public SimpleServer(ServerConfig serverConfig){
 		RemotingUtils.validate(serverConfig);
 		this.serverConfig = serverConfig;
-		Initializer.init();
 		this.bootstrap = new ServerBootstrap();
 		this.bossGroup = new NioEventLoopGroup();
 		this.workGroup = new NioEventLoopGroup();
@@ -54,28 +49,23 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 						ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 						ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
 						ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
-					//	ch.pipeline().addLast(SingletonFactoy.get(ServerRemoteCommandtDispatcher.class));
 						ch.pipeline().addLast(new NettyServerHandler());
 					}
 				});
 	}
 
 	@Override
-	public void start() {
-		Stopwatch stopwatch = Stopwatch.createStarted();
+	public boolean start() {
 		try {
 			ChannelFuture f = bootstrap.bind().sync();
 			logger.info("服务已启动，监听端口：{}", serverConfig.getListeningPort());
-			// 最后同步阻塞线程不退出
-			f.channel().closeFuture().sync();
+			return f.isSuccess();
 		} catch (Throwable e) {
 			logger.error("服务启动失败", e);
-		} finally {
-			logger.info("服务即将关闭，服务运行：cost：{}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-			shutdown();
+			return false;
 		}
 	}
-
+	
 	@Override
 	public void shutdown() {
 		logger.info("shutdown byebye..");

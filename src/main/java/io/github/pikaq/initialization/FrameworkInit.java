@@ -11,7 +11,6 @@ import io.github.pikaq.initialization.support.Initable;
 import io.github.pikaq.protocol.command.DefaultRemoteCommandFactory;
 import io.github.pikaq.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.protocol.serialization.Serializer;
-import io.github.pikaq.server.ServerRemoteCommandtDispatcher;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class FrameworkInit implements Initable {
 		//远程命令工厂
 		SingletonFactoy.register(RemoteCommandFactory.class, new DefaultRemoteCommandFactory());
 		//服务端命令分发器
-		SingletonFactoy.register(ServerRemoteCommandtDispatcher.class, new ServerRemoteCommandtDispatcher());
+//		SingletonFactoy.register(ServerRemoteCommandtDispatcher.class, new ServerRemoteCommandtDispatcher());
 		//服务端客户端信息管理器
 		SingletonFactoy.register(ClientChannelInfoManager.class, new ClientChannelInfoManager());
 		//akka

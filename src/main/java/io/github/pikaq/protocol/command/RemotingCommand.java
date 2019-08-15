@@ -2,7 +2,6 @@ package io.github.pikaq.protocol.command;
 
 import io.github.pikaq.common.util.ToJSON;
 import io.github.pikaq.protocol.RemotingCommandType;
-import io.github.pikaq.protocol.command.body.RemotingCommandBody;
 import lombok.Data;
 
 /**
@@ -24,7 +23,5 @@ public class RemotingCommand implements ToJSON {
 
 	// 是否需要响应
 	protected boolean responsible;
-
-	protected RemotingCommandBody body;
 
 }

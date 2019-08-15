@@ -13,7 +13,6 @@ import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.common.util.RemotingUtils;
-import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.PingCommand;
 import io.github.pikaq.protocol.command.RemotingCommand;
@@ -39,7 +38,6 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	private ClientConnnectManager clientConnnectManager;
 
 	public SimpleClient(ClientConfig clientConfig) {
-		Initializer.init();
 
 		this.clientConfig = clientConfig;
 

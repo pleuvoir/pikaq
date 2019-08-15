@@ -1,5 +1,7 @@
 package io.github.pikaq.protocol.command;
 
+import io.github.pikaq.protocol.RemotingCommandType;
+
 /**
  * 心跳请求命令
  * 
@@ -16,6 +18,11 @@ public class PingCommand extends RemoteBaseCommand {
 	@Override
 	public boolean responsible() {
 		return true;
+	}
+
+	@Override
+	public RemotingCommandType remotingCommandType() {
+		return RemotingCommandType.REQUEST_COMMAND;
 	}
 
 }

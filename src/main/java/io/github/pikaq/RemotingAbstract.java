@@ -25,10 +25,8 @@ import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
 import io.github.pikaq.common.util.SingletonFactoy;
-import io.github.pikaq.protocol.RemotingCommandType;
-import io.github.pikaq.protocol.RemotingRequestProcessor;
+import io.github.pikaq.initialization.support.Initializer;
 import io.github.pikaq.protocol.command.RemotingCommand;
-import io.github.pikaq.protocol.command.body.CarrierCommandBody;
 import io.github.pikaq.server.DispatcherActor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -56,6 +54,11 @@ public class RemotingAbstract {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
+	public RemotingAbstract() {
+		clearNoResponseExecutor.scheduleAtFixedRate(() -> clearNoResponse(), 1, 30, TimeUnit.SECONDS);
+		Initializer.init();
+	}
+
 	/**
 	 * 保存正在处理的消息请求<br>
 	 * 因为netty是以异步发送，所以发送后接受到的响应通过此寻找之前的对应关系
@@ -74,9 +77,6 @@ public class RemotingAbstract {
 	private ScheduledExecutorService clearNoResponseExecutor = Executors
 			.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("clearNoResponseExecutor")));
 
-	public RemotingAbstract() {
-		clearNoResponseExecutor.scheduleAtFixedRate(() -> clearNoResponse(), 1, 30, TimeUnit.SECONDS);
-	}
 
 	/**
 	 * 处理接收到的消息
@@ -96,43 +96,6 @@ public class RemotingAbstract {
 			}
 		}
 	}
-
-//	/**
-//	 * 处理对端发送的请求消息
-//	 */
-//	protected void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
-//		// 获取请求处理器
-//		RemotingRequestProcessor processor = SingletonFactoy.get(RemotingRequestProcessor.class);
-//		if (processor == null) {
-//			// 如果处理器为空则返回一条server empty processor消息
-//			
-//			RemotingCommand response = new RemotingCommand();
-//			response.setResponsible(false);
-//			response.setCommandType(RemotingCommandType.RESPONSE_COMMAND);
-//			response.setBody(CarrierCommandBody.buildString(true, "server empty processor", "OK"));
-//			ctx.writeAndFlush(response);
-//			return;
-//		}
-//
-//		// 处理请求
-//		final RemotingCommand response = processor.handler(ctx, request);
-//		if (response == null) {
-//			log.warn("processRequestCommand handler request, but return null. requestCode={}",
-//					request.getRequestCode());
-//			return;
-//		}
-//
-//		// 只有需要响应的消息才回复
-//		if (response.isResponsible()) {
-//			ctx.writeAndFlush(response);
-//		}
-//	}
-
-	
-	
-	
-	
-	
 	
 	public void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
 		// DispatcherActor不能通过new的方式创建

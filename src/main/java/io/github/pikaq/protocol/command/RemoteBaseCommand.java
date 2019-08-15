@@ -16,6 +16,7 @@ public abstract class RemoteBaseCommand extends RemotingCommand {
 		messageId = Generator.nextUUID();
 		requestCode = requestCode();
 		responsible = responsible();
+		commandType = remotingCommandType();
 	}
 
 	public void markRequest(){
@@ -32,4 +33,6 @@ public abstract class RemoteBaseCommand extends RemotingCommand {
 	public abstract boolean responsible();
 
 	public abstract int requestCode();
+	
+	public abstract RemotingCommandType remotingCommandType();
 }
