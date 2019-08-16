@@ -85,12 +85,13 @@ public class RpcResponse extends RemoteBaseCommand {
 }
 ```
 
+注意，消息类型决定了接收到消息后的处理方式。当`RemotingCommandType`为`REQUEST_COMMAND`时，处理器会进行异步处理，如果`responsible`为`true`，那么处理器会将返回的结果冲刷到远程对端节点；当当`RemotingCommandType`为`RESPONSE_COMMAND`时，一般而言代表之前的一次请求命令现在响应过来了，如果之前的请求命令有回调会异步执行回调并结束此次流程。
 
-框架通过`requestCode`匹配到对应的处理器你。
+
 
 #### 命令处理器
 
-所有的指令都通过实现`RemotingRequestProcessor`接口进行处理。
+框架通过`requestCode`匹配到对应的处理器。所有的指令处理都通过实现`RemotingRequestProcessor`接口进行处理，需要注册到`RemotingServer`中。
 
 
 #### 通信模型
@@ -103,11 +104,12 @@ async、sync、oneway
 
 ```java
 public static void main(String[] args) {
-		
+
 	SimpleServer simpleServer = new SimpleServer(ServerConfig.create(8888));
-	
+
+	// 注册业务处理器 requestCode=55
 	simpleServer.registerHandler(55, new RemotingRequestProcessor<RpcRequest, RpcResponse>() {
-	
+
 		@Override
 		public RpcResponse handler(ChannelHandlerContext ctx, RpcRequest request) {
 			RpcResponse rpcResponse = new RpcResponse();
@@ -115,9 +117,9 @@ public static void main(String[] args) {
 			return rpcResponse;
 		}
 	});
-	
+
 	simpleServer.start();
-	}
+}
 ```
 
 
@@ -126,17 +128,21 @@ public static void main(String[] args) throws RemotingSendRequestException, Remo
 		
 	SimpleClient simpleClient = new SimpleClient(ClientConfig.create().build());
 	
-	
 	String addr = "127.0.0.1:8888";
+	
+	//开启长连接，也可不开启，不开启调用会创建连接
 	simpleClient.connectWithRetry(addr);
 	
 	RpcRequest rpcRequest = new RpcRequest();
 	
+	//onway
 	simpleClient.invokeOneway(addr, rpcRequest);
 	
+	//同步调用
 	RemotingCommand response = simpleClient.invokeSync(addr, rpcRequest, 1000);
 	System.out.println(response.toJSON());
 	
+	//异步回调
 	simpleClient.invokeAsync(addr, rpcRequest, new InvokeCallback() {
 		@Override
 		public void onRequestException(RemotingFuture remotingFuture) {
@@ -148,5 +154,4 @@ public static void main(String[] args) throws RemotingSendRequestException, Remo
 		}
 	});
 }
-
 ```

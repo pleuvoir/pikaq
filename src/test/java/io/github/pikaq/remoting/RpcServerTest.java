@@ -8,12 +8,12 @@ import io.github.pikaq.server.SimpleServer;
 import io.netty.channel.ChannelHandlerContext;
 
 public class RpcServerTest {
-	
-	
+
 	public static void main(String[] args) {
-		
+
 		SimpleServer simpleServer = new SimpleServer(ServerConfig.create(8888));
-		
+
+		// 注册业务处理器 requestCode=55
 		simpleServer.registerHandler(55, new RemotingRequestProcessor<RpcRequest, RpcResponse>() {
 
 			@Override
@@ -23,7 +23,7 @@ public class RpcServerTest {
 				return rpcResponse;
 			}
 		});
-		
+
 		simpleServer.start();
 	}
 }
