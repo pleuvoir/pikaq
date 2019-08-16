@@ -33,61 +33,120 @@
 </dependency>
 ```
 
-### 自定义业务
+### 基础
 
-项目启动时会扫描所有实现了`Initable`接口的类，并且按照优先级进行初始化行为。可以使用此特性实现命令包/业务处理器的注册。
+#### 命令
 
-
-#### 指令
-
-项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令。远程命令需要提供初始化路径，通过继承`RemoteCommandInitAdapter`类，告知用户远程命令所在的包，完成加载。
-
-如下：
+项目中定义的通信基本单元为`RemoteCommand`，业务方可通过继承`RemoteBaseCommand`实现自己的远程命令，为了方便起见目前加载全路径下实现类，只需要提供实现类即可。如：
 
 ```java
-public class PentaqCommandHandlerInit extends RemoteCommandInitAdapter {
+public class RpcRequest extends RemoteBaseCommand{
 
 	@Override
-	protected String location() {
-		return "io.pentaq.remoting.command";
+	public boolean responsible() {
+		return true;
 	}
-}
 
+	@Override
+	public int requestCode() {
+		return 55;
+	}
+
+	@Override
+	public RemotingCommandType remotingCommandType() {
+		return RemotingCommandType.REQUEST_COMMAND;
+	}
+
+}
 ```
 
-#### 指令处理器
-
-所有的指令都通实现承`RemoteCommandProcessor`接口进行处理。此外，通过继承`CommandProcessorInitAdapter`来进行业务处理器的注册。
-
 ```java
-public class UserCommandInitTest extends CommandProcessorInitAdapter {
+public class RpcResponse extends RemoteBaseCommand {
+
+	@Getter
+	@Setter
+	private String payload;
+	
+	@Override
+	public boolean responsible() {
+		return false;
+	}
 
 	@Override
-	public void init() {
-		registerHandler(443, new RemoteCommandProcessor<RemoteCommand, RemoteCommand>() {
-			@Override
-			public RemoteCommand handler(ChannelHandlerContext ctx, RemoteCommand request) {
-				System.out.println("park.");
-				return null;
-			}
-		});
+	public int requestCode() {
+		return -55;
+	}
+
+	@Override
+	public RemotingCommandType remotingCommandType() {
+		return RemotingCommandType.RESPONSE_COMMAND;
+	}
+
+}
+```
+
+
+框架通过`requestCode`匹配到对应的处理器你。
+
+#### 命令处理器
+
+所有的指令都通过实现`RemotingRequestProcessor`接口进行处理。
+
+
+#### 通信模型
+
+async、sync、oneway
+
+消息处理使用Akka作为业务线程池进行异步处理。
+
+### 示例
+
+```java
+public static void main(String[] args) {
 		
-		registerHandler(444, new RemoteCommandProcessor<RemoteCommand, RemoteCommand>() {
-			@Override
-			public RemoteCommand handler(ChannelHandlerContext ctx, RemoteCommand request) {
-				System.out.println("unpark~");
-				return null;
-			}
-		});
+	SimpleServer simpleServer = new SimpleServer(ServerConfig.create(8888));
+	
+	simpleServer.registerHandler(55, new RemotingRequestProcessor<RpcRequest, RpcResponse>() {
+	
+		@Override
+		public RpcResponse handler(ChannelHandlerContext ctx, RpcRequest request) {
+			RpcResponse rpcResponse = new RpcResponse();
+			rpcResponse.setPayload("hello rpc");
+			return rpcResponse;
+		}
+	});
+	
+	simpleServer.start();
 	}
-
-}
 ```
 
-### QA
 
-#### 为什么不直接扫描，而是需要指定路径？
+```java
+public static void main(String[] args) throws RemotingSendRequestException, RemotingTimeoutException {
+		
+	SimpleClient simpleClient = new SimpleClient(ClientConfig.create().build());
+	
+	
+	String addr = "127.0.0.1:8888";
+	simpleClient.connectWithRetry(addr);
+	
+	RpcRequest rpcRequest = new RpcRequest();
+	
+	simpleClient.invokeOneway(addr, rpcRequest);
+	
+	RemotingCommand response = simpleClient.invokeSync(addr, rpcRequest, 1000);
+	System.out.println(response.toJSON());
+	
+	simpleClient.invokeAsync(addr, rpcRequest, new InvokeCallback() {
+		@Override
+		public void onRequestException(RemotingFuture remotingFuture) {
+			System.err.println("onRequestException .. " + remotingFuture.getBeginTimestamp());
+		}
+		@Override
+		public void onReceiveResponse(RemotingFuture remotingFuture) {
+			System.out.println("onReceiveResponse .. " + remotingFuture.getResponseCommand());
+		}
+	});
+}
 
-为了减少扫描的时间，以及更清晰的知道目标类所在的位置。
-
-
+```

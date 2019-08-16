@@ -2,6 +2,6 @@ package io.github.pikaq;
 
 public enum MessageFrom {
 
-	SERVER, CLIENT, ANY;
+	SERVER, CLIENT;
 
 }

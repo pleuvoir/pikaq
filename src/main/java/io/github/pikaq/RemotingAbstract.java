@@ -81,14 +81,14 @@ public class RemotingAbstract {
 	/**
 	 * 处理接收到的消息
 	 */
-	public void processMessageReceived(ChannelHandlerContext ctx, RemotingCommand cmd) throws Exception {
+	protected void processMessageReceived(ChannelHandlerContext ctx, RemotingCommand cmd) throws Exception {
 		if (cmd != null) {
 			switch (cmd.getCommandType()) {
 			case REQUEST_COMMAND:
-				processRequestCommand(ctx, cmd); // 处理接收到的请求消息
+				processRequestCommand(ctx, cmd); // 处理接收到的请求消息，如果是需要回应的，则回应
 				break;
 			case RESPONSE_COMMAND:
-				processResponseCommand(ctx, cmd); // 处理返回的响应，实际上服务端发送的消息不一定是响应消息，也可以主动发送
+				processResponseCommand(ctx, cmd); // 处理接收到的响应消息，一般是发送完请求消息后对端响应的内容，执行回调即完成，不会再应答
 				break;
 			default:
 				log.error("unknow commandtype . {}", cmd.toJSON());
@@ -97,7 +97,7 @@ public class RemotingAbstract {
 		}
 	}
 	
-	public void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
+	private void processRequestCommand(ChannelHandlerContext ctx, final RemotingCommand request) {
 		// DispatcherActor不能通过new的方式创建
 		RemoteInvokerContext invokerContext = RemoteInvokerContext.create().ctx(ctx).request(request).build();
 
@@ -252,7 +252,7 @@ public class RemotingAbstract {
 	/**
 	 * 清空过期请求
 	 */
-	public void clearNoResponse() {
+	private void clearNoResponse() {
 		final List<RemotingFuture> rfList = new LinkedList<RemotingFuture>();
 		Iterator<Entry<String, RemotingFuture>> it = this.pendings.entrySet().iterator();
 		while (it.hasNext()) {

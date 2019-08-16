@@ -1,19 +1,17 @@
 package io.github.pikaq.server;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class ServerConfig {
-	
 
-	public ServerConfig(int listeningPort) {
-		this.listeningPort = listeningPort;
+	public static ServerConfig create(int listeningPort) {
+		return new ServerConfig(listeningPort);
 	}
 
-	public ServerConfig() {
+	private ServerConfig(int listeningPort) {
 		super();
+		this.listeningPort = listeningPort;
 	}
 
 	/**
@@ -36,7 +34,7 @@ public class ServerConfig {
 	 * 当120秒未接收到读写请求时触发事件
 	 */
 	private long allIdleTime = 120;
-	
+
 	/**
 	 * 业务超时时间（秒），默认5秒
 	 */

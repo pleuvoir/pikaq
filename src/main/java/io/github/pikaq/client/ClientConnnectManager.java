@@ -43,7 +43,7 @@ public class ClientConnnectManager {
 	}
 
 	public void fireHoldTask() {
-		Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("hold_conn")))
+		Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("client_connnect_manager")))
 				.scheduleAtFixedRate(new Runnable() {
 					@Override
 					public void run() {

@@ -1,5 +1,7 @@
 package io.github.pikaq.server;
 
+import io.github.pikaq.protocol.RemotingRequestProcessor;
+
 public interface RemotingServer {
 
 	boolean start();
@@ -10,5 +12,6 @@ public interface RemotingServer {
 
 	ServerConfig getServerConfig();
 	
-	
+	@SuppressWarnings("rawtypes")
+	void registerHandler(int requestCode, RemotingRequestProcessor handler);
 }

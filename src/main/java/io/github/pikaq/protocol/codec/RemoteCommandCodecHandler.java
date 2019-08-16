@@ -1,15 +1,17 @@
 package io.github.pikaq.protocol.codec;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
+
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @ChannelHandler.Sharable
 public class RemoteCommandCodecHandler extends MessageToMessageCodec<ByteBuf, RemotingCommand> {
@@ -29,7 +31,5 @@ public class RemoteCommandCodecHandler extends MessageToMessageCodec<ByteBuf, Re
 		LOG.debug("编码成功。{}", JSON.toJSONString(request));
 	}
 
-	public static final RemoteCommandCodecHandler INSTANCE = new RemoteCommandCodecHandler();
-	
 	private static final Logger LOG = LoggerFactory.getLogger(RemoteCommandCodecHandler.class);
 }

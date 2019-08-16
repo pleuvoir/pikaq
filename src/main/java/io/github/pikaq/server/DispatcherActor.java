@@ -45,7 +45,6 @@ public class DispatcherActor extends UntypedActor {
 					.success(false)
 					.message(String.format(tips, request.getRequestCode(), request.getMessageFrom()))
 					.build();
-			response.setResponsible(false);
 			response.markResponse();
 
 		} else {

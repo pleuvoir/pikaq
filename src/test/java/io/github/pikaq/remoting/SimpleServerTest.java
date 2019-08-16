@@ -7,7 +7,7 @@ public class SimpleServerTest {
 
 
 	public static void main(String[] args) {
-		SimpleServer server = new SimpleServer(new ServerConfig(8443));
+		SimpleServer server = new SimpleServer(ServerConfig.create(8443));
 		boolean start = server.start();
 		if (start) {
 			System.out.println("start success.");

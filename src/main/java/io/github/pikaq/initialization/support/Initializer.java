@@ -24,7 +24,7 @@ public class Initializer {
 		if (!init.compareAndSet(false, true)) {
 			return;
 		}
-		Reflections packageInfo = new Reflections(".*");
+		Reflections packageInfo = new Reflections("io.github.pikaq.initialization.*");
 		Set<Class<? extends Initable>> subs = packageInfo.getSubTypesOf(Initable.class);
 		if (subs.isEmpty()) {
 			return;

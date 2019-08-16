@@ -36,10 +36,6 @@ public class RemotingCommand implements Cloneable {
 		setMessageFrom(MessageFrom.CLIENT);
 	}
 	
-	public void fromAny() {
-		setMessageFrom(MessageFrom.ANY);
-	}
-
 	public void markRequest() {
 		setCommandType(RemotingCommandType.REQUEST_COMMAND);
 	}
@@ -53,6 +49,11 @@ public class RemotingCommand implements Cloneable {
 	}
 
 	@Override
+	public String toString() {
+		return toJSON();
+	}
+	
+	@Override
 	public RemotingCommand clone() {
 		RemotingCommand cloned = null;
 		try {
@@ -62,5 +63,7 @@ public class RemotingCommand implements Cloneable {
 		}
 		return cloned;
 	}
+
+
 
 }

@@ -13,6 +13,7 @@ import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.exception.RemotingTimeoutException;
 import io.github.pikaq.common.util.MixUtils;
 import io.github.pikaq.common.util.RemotingUtils;
+import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.github.pikaq.protocol.command.embed.PingCommand;
@@ -52,7 +53,7 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
 						ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
-						ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
+						ch.pipeline().addLast(SingletonFactoy.get(RemoteCommandCodecHandler.class));
 						ch.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS)); // 30秒没有读事件
 						ch.pipeline().addLast(new HealthyChecker(SimpleClient.this));
 						ch.pipeline().addLast(new NettyClientHandler());

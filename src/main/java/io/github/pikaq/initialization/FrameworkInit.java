@@ -1,22 +1,20 @@
 package io.github.pikaq.initialization;
 
-
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
-import io.github.pikaq.ClientChannelInfoManager;
 import io.github.pikaq.common.util.SingletonFactoy;
-import io.github.pikaq.extension.ExtensionLoader;
 import io.github.pikaq.initialization.support.Initable;
-import io.github.pikaq.protocol.command.DefaultRemoteCommandFactory;
+import io.github.pikaq.protocol.CarrierCompositeProcessor;
+import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.RemoteCommandFactory;
-import io.github.pikaq.protocol.serialization.Serializer;
+import io.github.pikaq.protocol.command.RequestCode;
+import io.github.pikaq.server.PingRequestProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FrameworkInit implements Initable {
 
-	
 	@Override
 	public int getOrder() {
 		return HIGHEST_LEVEL;
@@ -26,23 +24,22 @@ public class FrameworkInit implements Initable {
 	public void init() {
 		log.info("FrameworkInit init.");
 		
-		//加载SPI
-		ExtensionLoader.initExtension(Serializer.class);
-		
-		//注册单例
-		
-		//远程命令工厂
-		SingletonFactoy.register(RemoteCommandFactory.class, new DefaultRemoteCommandFactory());
-		//服务端命令分发器
-//		SingletonFactoy.register(ServerRemoteCommandtDispatcher.class, new ServerRemoteCommandtDispatcher());
-		//服务端客户端信息管理器
-		SingletonFactoy.register(ClientChannelInfoManager.class, new ClientChannelInfoManager());
-		//akka
+		// 注册编码器
+		SingletonFactoy.register(RemoteCommandCodecHandler.class, new RemoteCommandCodecHandler());
+		// akka
 		SingletonFactoy.register(ActorSystem.class, initActorSystem());
+
+		// 加载远程命令工厂
+		RemoteCommandFactory factory = new RemoteCommandFactory();
+		SingletonFactoy.register(RemoteCommandFactory.class, factory);
+		// 服务端处理心跳
+		factory.registerHandler(RequestCode.HEART_BEAT_REQ.getCode(), new PingRequestProcessor());
+		// 处理托架命令
+		factory.registerHandler(RequestCode.CARRIER.getCode(), new CarrierCompositeProcessor());
+
 	}
-	
-	
-	//初始化ActorSystem
+
+	// 初始化ActorSystem
 	private static ActorSystem initActorSystem() {
 		StringBuilder s = new StringBuilder();
 		s.append("akka.loggers = [\"akka.event.slf4j.Slf4jLogger\"], ");
@@ -60,5 +57,5 @@ public class FrameworkInit implements Initable {
 		}
 		return ActorSystem.create("system", ConfigFactory.parseString(s.toString()));
 	}
-	
+
 }

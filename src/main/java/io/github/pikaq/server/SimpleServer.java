@@ -7,7 +7,10 @@ import java.util.List;
 
 import io.github.pikaq.RemotingAbstract;
 import io.github.pikaq.common.util.RemotingUtils;
+import io.github.pikaq.common.util.SingletonFactoy;
+import io.github.pikaq.protocol.RemotingRequestProcessor;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
+import io.github.pikaq.protocol.command.RemoteCommandFactory;
 import io.github.pikaq.protocol.command.RemotingCommand;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -30,8 +33,8 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 	private ServerConfig serverConfig;
 	private ServerBootstrap bootstrap;
 
-
-	public SimpleServer(ServerConfig serverConfig){
+	public SimpleServer(ServerConfig serverConfig) {
+		super();
 		RemotingUtils.validate(serverConfig);
 		this.serverConfig = serverConfig;
 		this.bootstrap = new ServerBootstrap();
@@ -47,7 +50,7 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
 						ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
-						ch.pipeline().addLast(RemoteCommandCodecHandler.INSTANCE);
+						ch.pipeline().addLast(SingletonFactoy.get(RemoteCommandCodecHandler.class));
 						ch.pipeline().addLast(new ServerIdleStateHandler(serverConfig.getAllIdleTime()));
 						ch.pipeline().addLast(new NettyServerHandler());
 					}
@@ -65,7 +68,7 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public void shutdown() {
 		logger.info("shutdown byebye..");
@@ -84,6 +87,12 @@ public class SimpleServer extends RemotingAbstract implements RemotingServer {
 		List<Thread> h = Arrays.asList(hooks);
 		h.forEach(hook -> Runtime.getRuntime().addShutdownHook(hook));
 		this.shutdownHooks.addAll(h);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void registerHandler(int requestCode, RemotingRequestProcessor handler) {
+		SingletonFactoy.get(RemoteCommandFactory.class).registerHandler(requestCode, handler);
 	}
 
 	@Override
