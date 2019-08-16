@@ -85,13 +85,13 @@ public class RpcResponse extends RemoteBaseCommand {
 }
 ```
 
-注意，消息类型决定了接收到消息后的处理方式。当`RemotingCommandType`为`REQUEST_COMMAND`时，处理器会进行异步处理，如果`responsible`为`true`，那么处理器会将返回的结果冲刷到远程对端节点；当当`RemotingCommandType`为`RESPONSE_COMMAND`时，一般而言代表之前的一次请求命令现在响应过来了，如果之前的请求命令有回调会异步执行回调并结束此次流程。
+注意，消息类型决定了接收到消息后的处理方式。当`RemotingCommandType`为`REQUEST_COMMAND`时，处理器会进行异步处理，如果`responsible`为`true`，那么处理器会将返回的结果冲刷到远程对端节点；当`RemotingCommandType`为`RESPONSE_COMMAND`时，一般而言代表之前的一次请求命令现在响应过来了，如果之前的请求命令有回调会异步执行回调并结束此次流程。
 
 
 
 #### 命令处理器
 
-框架通过`requestCode`匹配到对应的处理器。所有的指令处理都通过实现`RemotingRequestProcessor`接口进行处理，需要注册到`RemotingServer`中。
+框架通过`requestCode`匹配到对应的处理器。所有的指令处理都通过实现`RemotingRequestProcessor`接口进行处理，`RemotingServer`提供了方法进行注册。
 
 
 #### 通信模型
@@ -130,7 +130,7 @@ public static void main(String[] args) throws RemotingSendRequestException, Remo
 	
 	String addr = "127.0.0.1:8888";
 	
-	//开启长连接，也可不开启，不开启调用会创建连接
+	//开启长连接，也可不开启，不开启调用会创建新连接
 	simpleClient.connectWithRetry(addr);
 	
 	RpcRequest rpcRequest = new RpcRequest();
