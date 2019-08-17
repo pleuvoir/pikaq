@@ -24,7 +24,7 @@ public class NameThreadFactoryImpl implements ThreadFactory {
 	public Thread newThread(Runnable r) {
 		Thread t = new Thread(r);
 		t.setDaemon(daemon);
-		t.setName(this.namePrefix + "-" + this.count.getAndIncrement());
+		t.setName(this.namePrefix + "_" + this.count.getAndIncrement());
 		return t;
 	}
 }

@@ -9,7 +9,8 @@ public class ClientConfig {
 	private final int connectTimeoutMillis;
 
 	/**
-	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为30秒，即30秒发送一次心跳
+	 * 心跳间隔，一般设置为空闲检测时间的1/3，默认为30秒，即30秒发送一次心跳<br>
+	 * 可以设置为0，为0则关闭心跳检测以及长连接短线重连
 	 */
 	public final int heartbeatIntervalSeconds;
 
@@ -103,7 +104,6 @@ public class ClientConfig {
 			Preconditions.checkNotNull(clientConfig, "未设置客户端配置");
 			Preconditions.checkArgument(clientConfig.getStartFailReconnectTimes() > 0, "启动连接重试次数不能为为负");
 			Preconditions.checkArgument(clientConfig.getConnectTimeoutMillis() > 0, "连接超时时间不能为为负");
-			Preconditions.checkArgument(clientConfig.getHeartbeatIntervalSeconds() > 0, "心跳间隔时间不能为为负");
 		}
 	}
 

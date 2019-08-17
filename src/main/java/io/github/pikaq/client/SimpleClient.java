@@ -2,8 +2,10 @@ package io.github.pikaq.client;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Sets;
 
 import io.github.pikaq.InvokeCallback;
 import io.github.pikaq.RemotingAbstract;
@@ -16,7 +18,6 @@ import io.github.pikaq.common.util.RemotingUtils;
 import io.github.pikaq.common.util.SingletonFactoy;
 import io.github.pikaq.protocol.codec.RemoteCommandCodecHandler;
 import io.github.pikaq.protocol.command.RemotingCommand;
-import io.github.pikaq.protocol.command.embed.PingCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -35,8 +36,8 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 	private Bootstrap bootstrap;
 	private NioEventLoopGroup eventLoopGroup;
 	private ClientConfig clientConfig;
-	private RunningState runningState;
 	private ClientConnnectManager clientConnnectManager;
+	private volatile RunningState runningState;
 
 	public SimpleClient(ClientConfig clientConfig) {
 
@@ -54,38 +55,55 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 					protected void initChannel(SocketChannel ch) throws Exception {
 						ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 12, 4));
 						ch.pipeline().addLast(SingletonFactoy.get(RemoteCommandCodecHandler.class));
-						ch.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS)); // 30秒没有读事件
-						ch.pipeline().addLast(new HealthyChecker(SimpleClient.this));
+						if (clientConfig.getHeartbeatIntervalSeconds() > 0) {
+							ch.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS)); // 30秒没有读事件发送心跳到服务端
+							ch.pipeline().addLast(new HealthyChecker(SimpleClient.this));
+						}
 						ch.pipeline().addLast(new NettyClientHandler());
 					}
 				});
 
 		clientConnnectManager = new ClientConnnectManager(bootstrap);
-		runningState = RunningState.WAITING;
+        runningState = RunningState.WAITING;
 	}
 
 	@Override
-	public void connectWithRetry(String addr) {
+	public void connectWithRetry(String... addrs) {
 		Stopwatch stopwatch = Stopwatch.createStarted();
-		logger.info("开启连接");
+		
+		Sets.newHashSet(addrs).stream().collect(Collectors.toList()).forEach(addr -> {
+			connectWithRetry(addr);
+		});
+
+		clientConnnectManager.fireHoldTask();
+		logger.info("客户端批量连接全部完成，耗时：{}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+	}
+	
+	private void connectWithRetry(String addr) {
+		Stopwatch stopwatch = Stopwatch.createStarted();
+		logger.info("尝试连接：{}", addr);
 		SocketAddress remoteAddress = RemotingUtils.string2SocketAddress(addr);
 		ChannelFuture future = doConnectWithRetry(remoteAddress, clientConfig.getStartFailReconnectTimes());
 		Channel channel = future.channel();
 		clientConnnectManager.putChannel(channel);
-		clientConnnectManager.fireHoldTask();
-		clientConnnectManager.printAliveChannel();
-		channel.writeAndFlush(new PingCommand());
-		runningState = RunningState.RUNNING;
-		logger.info("客户端连接启动完成，耗时：{}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+		logger.info("客户端连接{}完成，耗时：{}ms", addr, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 	}
-
+	
 	@Override
 	public void shutdown() {
 		logger.info("shutdown byebye..");
+		super.shutdown();
 		if (eventLoopGroup != null) {
 			eventLoopGroup.shutdownGracefully();
 		}
-		runningState = RunningState.WAITING;
+		if(clientConnnectManager != null){
+			clientConnnectManager.release();
+		}
+	}
+	
+	@Override
+	public RunningState runningState() {
+		return runningState;
 	}
 
 	protected ChannelFuture doConnectWithRetry(SocketAddress remoteAddress, int retryTimes) {
@@ -139,16 +157,17 @@ public class SimpleClient extends RemotingAbstract implements RemotingClient {
 			logger.info(" -=-=-=-=-= processMessageReceived -=-=-=-=-= {}", msg.toJSON());
 			processMessageReceived(ctx, msg);
 		}
+
+		@Override
+		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+			ctx.close();
+			logger.error("ctx close,cause:", cause);
+		}
 	}
 
 	@Override
 	public ClientConfig getClientConfig() {
 		return clientConfig;
-	}
-
-	@Override
-	public RunningState runningState() {
-		return runningState;
 	}
 
 }

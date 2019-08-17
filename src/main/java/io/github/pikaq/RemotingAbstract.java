@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -267,4 +269,9 @@ public class RemotingAbstract {
 			}
 		}
 	}
+	
+	protected void shutdown(){
+		SingletonFactoy.get(ActorSystem.class).terminate();
+		MoreExecutors.shutdownAndAwaitTermination(clearNoResponseExecutor, 8, TimeUnit.SECONDS);
+	};
 }

@@ -64,12 +64,6 @@ public class HealthyChecker extends SimpleChannelInboundHandler<PongCommand> {
 	protected void channelRead0(ChannelHandlerContext ctx, PongCommand response) throws Exception {
 		LOG.debug("[client]接收到服务端心跳响应。response={}", response.toJSON());
 	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		ctx.close();
-		LOG.error("ctx close,cause:", cause);
-	}
 	
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {

@@ -4,7 +4,7 @@
 
 	<groupId>io.github.pleuvoir</groupId>
 	<artifactId>pikaq</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	<description>Communication Layer Framework Base on Netty.</description>

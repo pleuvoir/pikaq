@@ -4,6 +4,12 @@ public interface PikaqConst {
 
 	String SERIALIZER = "pikaq.serializer.algorithm";
 	
+	
+	/**
+	 * 初始化扫描包
+	 */
+	String INIT_SCANNER_PATH = "io.github.pikaq.initialization.*";
+	
 	/**
 	 * 全路径
 	 */

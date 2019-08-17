@@ -13,6 +13,7 @@ import org.reflections.Reflections;
 
 import com.google.common.collect.Lists;
 
+import io.github.pikaq.PikaqConst;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,7 +25,7 @@ public class Initializer {
 		if (!init.compareAndSet(false, true)) {
 			return;
 		}
-		Reflections packageInfo = new Reflections("io.github.pikaq.initialization.*");
+		Reflections packageInfo = new Reflections(PikaqConst.INIT_SCANNER_PATH);
 		Set<Class<? extends Initable>> subs = packageInfo.getSubTypesOf(Initable.class);
 		if (subs.isEmpty()) {
 			return;

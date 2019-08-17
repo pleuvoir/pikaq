@@ -2,10 +2,13 @@ package io.github.pikaq.client;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 import io.github.pikaq.common.exception.RemotingSendRequestException;
 import io.github.pikaq.common.util.NameThreadFactoryImpl;
@@ -23,9 +26,12 @@ import io.netty.channel.ChannelFuture;
 public class ClientConnnectManager {
 
 	private final Bootstrap bootstrap;
+	
+	private ScheduledExecutorService holdExcutor;
 
 	public ClientConnnectManager(Bootstrap bootstrap) {
 		this.bootstrap = bootstrap;
+		holdExcutor = Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("client_connnect_manager", true)));
 	}
 
 	public ConcurrentHashMap<String, Channel> tables = new ConcurrentHashMap<String, Channel>();
@@ -43,18 +49,17 @@ public class ClientConnnectManager {
 	}
 
 	public void fireHoldTask() {
-		Executors.newSingleThreadScheduledExecutor((new NameThreadFactoryImpl("client_connnect_manager")))
-				.scheduleAtFixedRate(new Runnable() {
-					@Override
-					public void run() {
-						tables.forEach((k, v) -> {
-							if (!validate(v)) {
-								LOG.debug("剔除连接通道：{}", v.localAddress());
-								removeChannel(k);
-							}
-						});
+		holdExcutor.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				tables.forEach((k, v) -> {
+					if (!validate(v)) {
+						LOG.debug("剔除连接通道：{}", v.localAddress());
+						removeChannel(k);
 					}
-				}, 5, 30, TimeUnit.SECONDS);
+				});
+			}
+		}, 5, 30, TimeUnit.SECONDS);
 	}
 
 	public void printAliveChannel() {
@@ -102,6 +107,14 @@ public class ClientConnnectManager {
 		future.awaitUninterruptibly();
 		Channel newChannel = future.channel();
 		return newChannel;
+	}
+	
+	public synchronized void release() {
+		tables.clear();
+		tables = null;
+		if (holdExcutor != null) {
+			MoreExecutors.shutdownAndAwaitTermination(holdExcutor, 8, TimeUnit.SECONDS);
+		}
 	}
 
 	protected static final Logger LOG = LoggerFactory.getLogger(ClientConnnectManager.class);

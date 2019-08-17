@@ -9,7 +9,10 @@ import io.github.pikaq.protocol.command.RemotingCommand;
 
 public interface RemotingClient {
 
-	void connectWithRetry(String addr) throws RemoteClientException;
+	/**
+	 * 批量连接多个不同的地址，连接过程中会进行重试，一般是为了预先连接而使用；如果有一个连接失败则停止
+	 */
+	void connectWithRetry(String... addrs) throws RemoteClientException;
 
 	RemotingCommand invokeSync(String addr, RemotingCommand request, long timeoutMillis)
 			throws RemotingTimeoutException, RemotingSendRequestException;
@@ -22,7 +25,7 @@ public interface RemotingClient {
 	ClientConfig getClientConfig();
 
 	void shutdown();
-	
-	RunningState runningState();
+
+    RunningState runningState();
 
 }
