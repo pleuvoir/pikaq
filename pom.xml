@@ -20,7 +20,7 @@
 		<hessian.version>3.3.6</hessian.version>
 		<lang3.version>3.7</lang3.version>
 		<lombok.version>1.18.4</lombok.version>
-		<guava.version>23.6-jre</guava.version>
+		<guava.version>24.1.1-jre</guava.version>
 		<uuid.version>3.1.5</uuid.version>
 		<reflections.version>0.9.9-RC1</reflections.version>
 		<akka.version>2.4.17</akka.version>
