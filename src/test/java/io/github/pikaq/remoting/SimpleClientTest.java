@@ -1,31 +1,32 @@
 package io.github.pikaq.remoting;
 
 
-import org.junit.Assert;
-
+import io.github.pikaq.URL;
 import io.github.pikaq.client.ClientConfig;
 import io.github.pikaq.client.SimpleClient;
 import io.github.pikaq.common.exception.RemoteClientException;
+import org.junit.Assert;
 
 public class SimpleClientTest {
 
-	// junit会退出去 大坑
-	public static void main(String[] args) throws RemoteClientException {
-		ClientConfig clientConfig = ClientConfig.create()
-				.connectTimeoutMillis(5000)
-				.startFailReconnectTimes(3)
-				.build();
+  // junit会退出去 大坑
+  public static void main(String[] args) throws RemoteClientException {
+    ClientConfig clientConfig = ClientConfig.create()
+        .connectTimeoutMillis(5000)
+        .startFailReconnectTimes(3)
+        .build();
 
-		Assert.assertEquals(clientConfig.getConnectTimeoutMillis(), 5000);
-		Assert.assertEquals(clientConfig.getStartFailReconnectTimes(), 3);
+    URL url = new URL("127.0.0.1", 8888);
 
-		SimpleClient client = new SimpleClient(clientConfig);
+    Assert.assertEquals(clientConfig.getConnectTimeoutMillis(), 5000);
+    Assert.assertEquals(clientConfig.getStartFailReconnectTimes(), 3);
 
-		client.connectWithRetry("127.0.0.1:8443");
-		
-		
-		//client.shutdown();
-		
-	}
+    SimpleClient client = new SimpleClient(clientConfig, url);
+
+    client.connectWithRetry(url);
+
+    //client.shutdown();
+
+  }
 
 }

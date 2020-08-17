@@ -25,6 +25,7 @@
 		<reflections.version>0.9.9-RC1</reflections.version>
 		<akka.version>2.4.17</akka.version>
 		<hutool.version>4.2.1</hutool.version>
+		<commons-pool.version>1.6</commons-pool.version>
 	</properties>
 
 
@@ -33,6 +34,11 @@
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-all</artifactId>
 			<version>${hutool.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>${commons-pool.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
